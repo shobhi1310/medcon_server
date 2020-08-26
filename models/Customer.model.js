@@ -14,6 +14,8 @@ const customerSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:'bookings'
     }]
+},{
+    timestamps:true
 })
 
 const Customer = mongoose.model('customers',customerSchema)

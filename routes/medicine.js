@@ -6,7 +6,11 @@ router.route('/fetch/:text').get(async (req,res)=>{
     let medicines
     try {
         medicines = await medicineModel.find({name:new RegExp('^'+query,'i')},{_id:1,name:1,manufacturer:1,strength:1}).limit(20);
-        res.json(medicines);
+        JSON.stringify(medicines)
+        data = {
+            medicines : medicines
+        }
+        res.json(data);
     } catch (error) {
         res.json(error);
     }

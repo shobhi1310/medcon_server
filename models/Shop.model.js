@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const shopSchema = new Schema({
-    name:{type:String},
+    name:{type:String,required:true},
     email_id:{type:String},
     password:{type:String},
     address:{type:String},
@@ -25,6 +25,8 @@ const shopSchema = new Schema({
         ref:'medicines',
         status:{type:Boolean}
     }]
+},{
+    timestamps:true
 });
 
 const Shop = mongoose.model('shops',shopSchema);

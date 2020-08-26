@@ -22,15 +22,16 @@ router.route('/login').post(async(req, res)=>{
 })
 
 router.route('/register').post((req,res)=>{
-    if(req.body.isCustomer) {
-        const newUser = new customerModel({
+    let newUser = {}
+    if(req.body.isCustomer===true) {
+        newUser = new customerModel({
             name: req.body.name,
             email: req.body.email,
             password: req.body.password,
             phone: req.body.phone
         })
     } else {
-        const newUser = new shopModel({
+        newUser = new shopModel({
             name: req.body.name,
             email: req.body.email,
             password: req.body.password,
@@ -42,9 +43,10 @@ router.route('/register').post((req,res)=>{
 
     newUser.save((error, user) => {
         if (error) {
-            res.JSON(error)
+            res.json(error)
         } else {
-            res.status(200).JSON("Successfully Registered")
+            res.json(user)
+            // res.json("Successfully Registered")
         }
     })
 })
