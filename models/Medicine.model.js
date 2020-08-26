@@ -9,7 +9,7 @@ const medicineSchema = new Schema({
     prescription:{type:Boolean},
     shops:[{
         type:Schema.Types.ObjectId,
-        ref:'Shops'
+        ref : 'shops'
     }]
 })
 
