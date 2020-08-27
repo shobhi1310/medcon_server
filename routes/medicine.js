@@ -32,7 +32,7 @@ router.route('/shoplist/:id').get(async (req,res)=>{
     const id = req.params.id
     let medicine
     try {
-        medicine = await medicineModel.findById(id,{shops:1}).populate('shops')
+        medicine = await medicineModel.findById(id).populate('shops')
         res.json(medicine)
     } catch (error) {
         res.json(error)
