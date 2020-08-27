@@ -15,9 +15,9 @@ router.route('/login').post(async(req, res)=>{
         } else {
             user = await shopModel.find({email_id: query.email, password: query.password})
         }
-        res.status(200).JSON(user)
+        res.status(200).json(user)
     } catch (error) {
-        res.JSON(error)
+        res.json(error)
     }
 })
 
