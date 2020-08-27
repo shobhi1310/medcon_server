@@ -1,6 +1,60 @@
-const router = require('express').Router()
-const bookingModel = require('../models/Booking.model')
-const customerModel = require('../models/Customer.model')
-const shopModel = require('../models/Shop.model')
+const router = require('express').Router();
+const bookingModel = require('../models/Booking.model');
+const customerModel = require('../models/Customer.model');
+const shopModel = require('../models/Shop.model');
 
-module.exports = router
+router.get('/current/:id', (req, res) => {
+  const id = req.params.id;
+  bookingModel
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .then((bookings) => {
+      //console.log(bookings);
+      const currentBooking = [];
+
+      for (let i = 0; i < bookings.length; i++) {
+        let bookingDate = new Date(bookings[i].createdAt);
+        let currentDate = new Date();
+        const timeDifference = (currentDate - bookingDate) / 60000;
+
+        if (timeDifference > bookings[i].time_range) {
+          bookings[i].expired = true;
+          bookings[i].save();
+        } else {
+          currentBooking.push(bookings[i]);
+        }
+        //console.log(bookingDate, currentDate, currentDate - bookingDate);
+      }
+
+      res.json(currentBooking);
+    });
+});
+
+router.get('/past/:id', (req, res) => {
+  const id = req.params.id;
+  bookingModel
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true })
+    .then((bookings) => {
+      //console.log(bookings);
+
+      res.json(bookings);
+    });
+});
+
+router.post('/book', async (req, res) => {
+  try {
+    let bookingData = new bookingModel({
+      customer_id: req.body.customer_id,
+      shop_id: req.body.shop_id,
+      medicine_id: req.body.medicine_id,
+      booking_amount: req.body.booking_amount,
+      time_range: req.body.time_range,
+      expired: false,
+    });
+    await bookingData.save();
+    res.status(200).json('Booking Successful');
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+module.exports = router;
