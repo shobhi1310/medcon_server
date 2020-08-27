@@ -38,4 +38,5 @@ router.route('/shoplist/:id').get(async (req,res)=>{
         res.json(error)
     }
 })
+
 module.exports = router
