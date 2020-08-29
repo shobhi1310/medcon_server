@@ -25,6 +25,26 @@ router.route('/medicinelist/:id').get(async (req, res) => {
   }
 });
 
+router.post('/:ShopID/addMedicine/:MedicineID', (req, res) => {
+  //console.log('API Called', req.params);
+  const shopID = req.params.ShopID;
+  const medicineID = req.params.MedicineID;
+  try {
+    shopModel.findById(shopID).then((Shop) => {
+      //console.log(Shop);
+
+      Shop.medicines.push({ medicine: medicineID, status: true });
+
+      Shop.save();
+    });
+    res.status(200).json({
+      message: 'added',
+    });
+  } catch (error) {
+    res.json(error);
+  }
+});
+
 router.post('/:ShopID/update/:MedicineID', (req, res) => {
   const shopID = req.params.ShopID;
   const medicineID = req.params.MedicineID;
@@ -51,7 +71,6 @@ router.post('/:ShopID/update/:MedicineID', (req, res) => {
 });
 
 router.delete('/:ShopID/remove/:MedicineID', (req, res) => {
-  console.log('API called');
   const shopID = req.params.ShopID;
   const medicineID = req.params.MedicineID;
   try {

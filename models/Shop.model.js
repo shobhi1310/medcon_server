@@ -24,6 +24,7 @@ const shopSchema = new Schema(
     ],
     medicines: [
       {
+        _id: false,
         medicine: { type: Schema.Types.ObjectId, ref: 'medicines' },
         status: { type: Boolean },
       },
