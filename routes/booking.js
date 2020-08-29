@@ -66,8 +66,10 @@ router.get('/past/:id', async (req, res) => {
       }
       AllPastBookings = AllPastBookings.concat(pastBookings);
     });
-
-  res.json(AllPastBookings);
+    let past = {
+      AllPastBookings
+    }
+  res.json(past);
 });
 
 router.post('/book', async (req, res) => {
