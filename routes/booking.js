@@ -7,7 +7,7 @@ const moment = require('moment')
 router.get('/current/:id', (req, res) => {
   const id = req.params.id;
   bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false }).populate('shop_id').populate('medicine_id')
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false }).populate('shop_id').populate('medicine_id').populate('customer_id')
     .then((bookings) => {
       //console.log(bookings);
       const currentBooking = [];
@@ -40,7 +40,7 @@ router.get('/past/:id', async (req, res) => {
   const id = req.params.id;
   let AllPastBookings = [];
   await bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true }).populate('shop_id').populate('medicine_id')
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true }).populate('shop_id').populate('medicine_id').populate('customer_id')
     .then((bookings) => {
       //console.log(bookings);
       AllPastBookings = bookings;
