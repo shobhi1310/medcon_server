@@ -40,14 +40,14 @@ router.get('/past/:id', async (req, res) => {
   const id = req.params.id;
   let AllPastBookings = [];
   await bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true }).populate('shop_id').populate('medicine_id')
     .then((bookings) => {
       //console.log(bookings);
       AllPastBookings = bookings;
     });
 
   await bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false }).populate('shop_id').populate('medicine_id')
     .then((bookings) => {
       //console.log(bookings);
       const pastBookings = [];
