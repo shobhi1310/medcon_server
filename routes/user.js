@@ -23,7 +23,8 @@ router.route('/login').post(async(req, res)=>{
 
 router.route('/register').post((req,res)=>{
     let newUser = {}
-    if(req.body.isCustomer===true) {
+    var isCustomer = (req.body.isCustomer==='true');
+    if(isCustomer) {
         newUser = new customerModel({
             name: req.body.name,
             email: req.body.email,
