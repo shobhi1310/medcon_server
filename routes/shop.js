@@ -32,7 +32,7 @@ router.post('/:ShopID/addMedicine/:MedicineID', (req, res) => {
   try {
     shopModel.findById(shopID).then((Shop) => {
       //console.log(Shop);
-    var status = req.body.status
+    var status = (req.body.status==='true')
       Shop.medicines.push({ medicine: medicineID, status });
 
       Shop.save();
