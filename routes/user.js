@@ -57,4 +57,18 @@ router.route('/register').post((req,res)=>{
     })
 })
 
+router.route('/:id').post(async(req, res) => {
+    let user = {}
+    try {
+        user = await customerModel.findById(req.params.id)
+        console.log(user);
+        if(user === null) {
+            user = await shopModel.findById(req.params.id)
+        }
+        res.json(user)
+    } catch(error) {
+        res.json(error)
+    }
+})
+
 module.exports = router
