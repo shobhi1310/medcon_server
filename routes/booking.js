@@ -64,6 +64,7 @@ router.get('/past/:id', async (req, res) => {
 });
 
 router.post('/book', async (req, res) => {
+  //console.log(req.params);
   try {
     let bookingData = new bookingModel({
       customer_id: req.body.customer_id,
