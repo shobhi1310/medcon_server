@@ -2,11 +2,12 @@ const router = require('express').Router();
 const bookingModel = require('../models/Booking.model');
 const customerModel = require('../models/Customer.model');
 const shopModel = require('../models/Shop.model');
+const moment = require('moment')
 
 router.get('/current/:id', (req, res) => {
   const id = req.params.id;
   bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false }).populate('shop_id').populate('medicine_id').populate('customer_id')
     .then((bookings) => {
       //console.log(bookings);
       const currentBooking = [];
@@ -20,12 +21,18 @@ router.get('/current/:id', (req, res) => {
           bookings[i].expired = true;
           bookings[i].save();
         } else {
+          // var date =  moment(bookings[i].createdAt).format('Do MMMM, YYYY');
+          // var fresh = bookings[i];
+          // fresh['date'] = date
+          // console.log(fresh);
           currentBooking.push(bookings[i]);
         }
         //console.log(bookingDate, currentDate, currentDate - bookingDate);
       }
-
-      res.json(currentBooking);
+      let current = {
+        currentBooking
+      }
+      res.json(current);
     });
 });
 
@@ -33,14 +40,14 @@ router.get('/past/:id', async (req, res) => {
   const id = req.params.id;
   let AllPastBookings = [];
   await bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true }).populate('shop_id').populate('medicine_id').populate('customer_id')
     .then((bookings) => {
       //console.log(bookings);
       AllPastBookings = bookings;
     });
 
   await bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false }).populate('shop_id').populate('medicine_id')
     .then((bookings) => {
       //console.log(bookings);
       const pastBookings = [];
@@ -59,8 +66,10 @@ router.get('/past/:id', async (req, res) => {
       }
       AllPastBookings = AllPastBookings.concat(pastBookings);
     });
-
-  res.json(AllPastBookings);
+    let past = {
+      AllPastBookings
+    }
+  res.json(past);
 });
 
 router.post('/book', async (req, res) => {
