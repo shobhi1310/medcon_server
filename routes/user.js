@@ -57,7 +57,7 @@ router.route('/register').post((req,res)=>{
     })
 })
 
-router.route('/:id').post(async(req, res) => {
+router.route('/:id').get(async(req, res) => {
     let user = {}
     try {
         user = await customerModel.findById(req.params.id)
@@ -72,7 +72,7 @@ router.route('/:id').post(async(req, res) => {
 })
 
 router.route('/profile/update/:id').post(async (req,res)=>{
-    
+
 })
 
 module.exports = router
