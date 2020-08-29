@@ -8,14 +8,19 @@ router.route('/login').post(async(req, res)=>{
         password: req.body.password,
         isCustomer: req.body.isCustomer
     }
-
+    
+    var customer = (req.body.isCustomer === 'true')
+    
     try {
-        if(isCustomer) {
-            user = await customerModel.find({email_id: query.email, password: query.password})
+        // console.log(query);
+        let user = {}
+        if(customer) {
+            user = await customerModel.findOne({email_id: query['email'], password: query['password']})
         } else {
-            user = await shopModel.find({email_id: query.email, password: query.password})
+            user = await shopModel.findOne({email_id: query.email, password: query.password})
         }
-        res.status(200).json(user)
+        // console.log(user);
+        res.status(200).json(user._id)
     } catch (error) {
         res.json(error)
     }
@@ -26,14 +31,14 @@ router.route('/register').post((req,res)=>{
     if(req.body.isCustomer===true) {
         newUser = new customerModel({
             name: req.body.name,
-            email: req.body.email,
+            email_id: req.body.email,
             password: req.body.password,
             phone: req.body.phone
         })
     } else {
         newUser = new shopModel({
             name: req.body.name,
-            email: req.body.email,
+            email_id: req.body.email,
             password: req.body.password,
             address: req.body.address,
             phone: req.body.phone,
