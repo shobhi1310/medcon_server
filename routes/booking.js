@@ -29,15 +29,38 @@ router.get('/current/:id', (req, res) => {
     });
 });
 
-router.get('/past/:id', (req, res) => {
+router.get('/past/:id', async (req, res) => {
   const id = req.params.id;
-  bookingModel
+  let AllPastBookings = [];
+  await bookingModel
     .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true })
     .then((bookings) => {
       //console.log(bookings);
-
-      res.json(bookings);
+      AllPastBookings = bookings;
     });
+
+  await bookingModel
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .then((bookings) => {
+      //console.log(bookings);
+      const pastBookings = [];
+
+      for (let i = 0; i < bookings.length; i++) {
+        let bookingDate = new Date(bookings[i].createdAt);
+        let currentDate = new Date();
+        const timeDifference = (currentDate - bookingDate) / 60000;
+
+        if (timeDifference > bookings[i].time_range) {
+          bookings[i].expired = true;
+          bookings[i].save();
+          pastBookings.push(bookings[i]);
+        }
+        //console.log(bookingDate, currentDate, currentDate - bookingDate);
+      }
+      AllPastBookings = AllPastBookings.concat(pastBookings);
+    });
+
+  res.json(AllPastBookings);
 });
 
 router.post('/book', async (req, res) => {
