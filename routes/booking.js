@@ -2,11 +2,12 @@ const router = require('express').Router();
 const bookingModel = require('../models/Booking.model');
 const customerModel = require('../models/Customer.model');
 const shopModel = require('../models/Shop.model');
+const moment = require('moment')
 
 router.get('/current/:id', (req, res) => {
   const id = req.params.id;
   bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false }).populate('shop_id').populate('medicine_id')
     .then((bookings) => {
       //console.log(bookings);
       const currentBooking = [];
@@ -20,27 +21,57 @@ router.get('/current/:id', (req, res) => {
           bookings[i].expired = true;
           bookings[i].save();
         } else {
+          // var date =  moment(bookings[i].createdAt).format('Do MMMM, YYYY');
+          // var fresh = bookings[i];
+          // fresh['date'] = date
+          // console.log(fresh);
           currentBooking.push(bookings[i]);
         }
         //console.log(bookingDate, currentDate, currentDate - bookingDate);
       }
-
-      res.json(currentBooking);
+      let current = {
+        currentBooking
+      }
+      res.json(current);
     });
 });
 
-router.get('/past/:id', (req, res) => {
+router.get('/past/:id', async (req, res) => {
   const id = req.params.id;
-  bookingModel
+  let AllPastBookings = [];
+  await bookingModel
     .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true })
     .then((bookings) => {
       //console.log(bookings);
-
-      res.json(bookings);
+      AllPastBookings = bookings;
     });
+
+  await bookingModel
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .then((bookings) => {
+      //console.log(bookings);
+      const pastBookings = [];
+
+      for (let i = 0; i < bookings.length; i++) {
+        let bookingDate = new Date(bookings[i].createdAt);
+        let currentDate = new Date();
+        const timeDifference = (currentDate - bookingDate) / 60000;
+
+        if (timeDifference > bookings[i].time_range) {
+          bookings[i].expired = true;
+          bookings[i].save();
+          pastBookings.push(bookings[i]);
+        }
+        //console.log(bookingDate, currentDate, currentDate - bookingDate);
+      }
+      AllPastBookings = AllPastBookings.concat(pastBookings);
+    });
+
+  res.json(AllPastBookings);
 });
 
 router.post('/book', async (req, res) => {
+  //console.log(req.params);
   try {
     let bookingData = new bookingModel({
       customer_id: req.body.customer_id,
