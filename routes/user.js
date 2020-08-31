@@ -20,7 +20,7 @@ router.route('/login').post(async(req, res)=>{
             user = await shopModel.findOne({email_id: query.email, password: query.password})
         }
         // console.log(user);
-        res.status(200).json(user._id)
+        res.status(200).json(user)
     } catch (error) {
         res.json(error)
     }
