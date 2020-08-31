@@ -65,7 +65,8 @@ router.route('/:id').get(async(req, res) => {
             user = await shopModel.findById(req.params.id)
         }
         let data = [user]
-        res.json(data)
+        let dataObj = {data}
+        res.json(dataObj)
     } catch(error) {
         res.json(error)
     }
