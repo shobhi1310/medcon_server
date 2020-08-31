@@ -71,4 +71,8 @@ router.route('/:id').get(async(req, res) => {
     }
 })
 
+router.route('/profile/update/:id').post(async (req,res)=>{
+
+})
+
 module.exports = router
