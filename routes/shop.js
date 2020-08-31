@@ -1,6 +1,16 @@
 const router = require('express').Router();
 const shopModel = require('../models/Shop.model');
 
+router.get('/city', (req,res)=>{
+  shopModel.find({},{location:1}).then((shops)=>{
+    const shopList = {shops}
+    res.json(shopList)
+  })
+  .catch(err=>{
+    res.json(err);
+  })
+})
+
 router.route('/:id').get(async (req, res) => {
   const id = req.params.id;
   let shop;
@@ -91,5 +101,6 @@ router.delete('/:ShopID/remove/:MedicineID', (req, res) => {
     res.json(error);
   }
 });
+
 
 module.exports = router;
