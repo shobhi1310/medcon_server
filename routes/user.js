@@ -74,6 +74,83 @@ router.route('/:id').get(async(req, res) => {
 
 router.route('/profile/update/:id').post(async (req,res)=>{
 
+    //right now i am thinking that only user is updating its profile
+    //i assuming customer can change its name,password and phone no
+    //he/she can't change its email-id
+    let user = null;
+
+    try{
+        user = await customerModel.findById(req.params.id);
+        var isCustomer = false;
+        if(user===null || user === undefined){
+            user = await shopModel.findById(req.params.id);
+        }else{
+            isCustomer = true;
+        }
+
+        if(user === null || user === undefined){
+            res.status(404).json({"Status":"No user exists"});
+            return;
+        }
+
+        // res.status(200).json(user);
+
+        var newName = user.name;
+        var newPhone = user.phone;
+        var newPassword = user.password;
+        
+
+
+        // console.log("isCustomer ",isCustomer);
+
+        if(req.body.name!==null && req.body.name!==undefined && req.body.name.length>0){
+            newName = req.body.name;
+        }
+
+
+        if(req.body.phone!==null && req.body.phone!==undefined && req.body.phone.length>0){
+            newPhone = req.body.phone;
+        }
+
+
+        if(req.body.password!==null && req.body.password!==undefined && req.body.password.length>0){
+            newPassword = req.body.password;
+        }
+
+
+
+        var Query = { _id: req.params.id };
+        var updateValue = { $set: { name: newName , phone: newPhone, password:newPassword} };
+
+
+        if(isCustomer){
+            customerModel.updateOne(Query,updateValue,(err,response)=>{
+                if(err){
+                    throw err;
+                    // return;
+                }
+    
+                
+            })
+    
+            res.json({"Success":"Customer Profile has been updated successfully"});
+        }else{
+            shopModel.updateOne(Query,updateValue,(err,response)=>{
+                if(err){
+                    throw err;
+                    // return;
+                }
+    
+                
+            })
+    
+            res.json({"Success":"Shop Owner Profile has been updated successfully"});
+        }
+
+    }catch(error){
+        res.status(404).json({"error":error});
+    }
+
 })
 
 module.exports = router
