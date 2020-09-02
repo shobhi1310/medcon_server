@@ -13,9 +13,9 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// const uri = process.env.URI;
+const uri = process.env.URI;
 
-const uri = "mongodb://localhost:27017/medconnect";
+// const uri = "mongodb://localhost:27017/medconnect";
 
 mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true });
 const connection = mongoose.connection;
