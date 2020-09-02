@@ -5,6 +5,7 @@ const bookingSchema = new Schema({
     customer_id:{type:Schema.Types.ObjectId, ref:'customers'},
     shop_id:{type:Schema.Types.ObjectId, ref:'shops'},
     medicine_id:{type:Schema.Types.ObjectId, ref:'medicines'},
+    prescription_url:{type:String},
     booking_amount:{type:String},
     time_range:{type:Number},
     expired:{type:Boolean}

@@ -5,7 +5,7 @@ router.route('/fetch/:text').get(async (req,res)=>{
     const query = req.params.text
     let medicines
     try {
-        medicines = await medicineModel.find({name:new RegExp('^'+query,'i')},{_id:1,name:1,manufacturer:1,strength:1}).limit(20);
+        medicines = await medicineModel.find({name:new RegExp('^'+query,'i')},{_id:1,name:1,manufacturer:1,strength:1,prescription:1}).limit(20);
         JSON.stringify(medicines)
         data = {
             medicines : medicines
