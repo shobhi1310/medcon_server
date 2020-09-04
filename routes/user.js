@@ -111,7 +111,6 @@ router.route('/profile/update/:id').post(async (req,res)=>{
         var Query = { _id: req.params.id };
         var updateValue = { $set: { name: newName , phone: newPhone, password:newPassword} };
 
-
         customerModel.updateOne(Query,updateValue,(err,response)=>{
             if(err){
                 throw err;

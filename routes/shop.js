@@ -86,11 +86,9 @@ router.delete('/:ShopID/remove/:MedicineID', (req, res) => {
   try {
     shopModel.findById(shopID).then((Shop) => {
       //console.log(Shop);
-
       Shop.medicines = Shop.medicines.filter(({ medicine }) => {
         return medicine != medicineID;
       });
-
       Shop.save();
     });
 
@@ -102,5 +100,28 @@ router.delete('/:ShopID/remove/:MedicineID', (req, res) => {
   }
 });
 
+router.post('/location/:id', async(req, res) => {
+  let shop;
+  try {
+    shop = await shopModel.findById(shopID)
+
+    var latitude = req.body.latitude
+    var longitude = req.body.longitude
+    
+    var query = { _id: req.params.id }
+    var updateLocation = { $set: { location: [latitude, longitude] } };
+
+    shopModel.updateOne(query, updateLocation, (err, response) => {
+      if(err) {
+        throw err;
+      }
+
+    })
+
+    res.status(200).json("Location Added Successfully")
+  } catch (error) {
+    res.status(404).json(error)
+  }
+})
 
 module.exports = router;
