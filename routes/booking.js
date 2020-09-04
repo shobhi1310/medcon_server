@@ -2,7 +2,8 @@ const router = require('express').Router();
 const bookingModel = require('../models/Booking.model');
 const customerModel = require('../models/Customer.model');
 const shopModel = require('../models/Shop.model');
-const moment = require('moment');
+const moment = require('moment')
+const upload = require('../db/upload')
 
 router.get('/current/:id', (req, res) => {
   const id = req.params.id;
@@ -82,8 +83,14 @@ router.get('/past/:id', async (req, res) => {
   res.json(past);
 });
 
-router.post('/book', async (req, res) => {
+router.post('/book', upload.single('prescription') ,async (req, res) => {
   //console.log(req.params);
+  let prescription_url;
+  if(req.file==''){
+    prescription_url = ''
+  }else{
+    prescription_url = `${req.file.filename}`
+  }
   try {
     let deadline = moment().add(req.body.time_range, 'm');
 
@@ -95,6 +102,7 @@ router.post('/book', async (req, res) => {
       time_range: req.body.time_range,
       deadline: deadline.format('HH:mm'),
       expired: false,
+      prescription_url
     });
     //console.log(bookingData);
     await bookingData.save();
