@@ -91,7 +91,7 @@ router.post('/:ShopID/update/:MedicineID', (req, res) => {
       for (let i = 0; i < Shop.medicines.length; i++) {
         //console.log(Shop.medicines[i].medicine, medicineID);
         if (Shop.medicines[i].medicine == medicineID) {
-          //console.log('updated');
+          console.log('updated');
           Shop.medicines[i].status = !Shop.medicines[i].status;
 
           if (Shop.medicines[i].status) {
