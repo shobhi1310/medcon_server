@@ -15,12 +15,5 @@ const upload = multer({ storage,
         fileSize: 50 * 1000000 // 50 Mb limit imposed
     } 
 })
-// forced upload to handle non image uploads
-const uploadf = multer({ storage,
-    limits:{
-        fileSize: 50 * 1000000 // 50 Mb limit imposed but unrestricted on type
-    } 
-})
-module.exports =  {
-   upload,uploadf
-};
+
+module.exports =  upload

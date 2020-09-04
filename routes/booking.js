@@ -3,6 +3,7 @@ const bookingModel = require('../models/Booking.model');
 const customerModel = require('../models/Customer.model');
 const shopModel = require('../models/Shop.model');
 const moment = require('moment')
+const upload = require('../db/upload')
 
 router.get('/current/:id', (req, res) => {
   const id = req.params.id;
@@ -72,8 +73,14 @@ router.get('/past/:id', async (req, res) => {
   res.json(past);
 });
 
-router.post('/book', async (req, res) => {
+router.post('/book', upload.single('prescription') ,async (req, res) => {
   //console.log(req.params);
+  let prescription_url;
+  if(req.file==''){
+    prescription_url = ''
+  }else{
+    prescription_url = `${req.file.filename}`
+  }
   try {
     let bookingData = new bookingModel({
       customer_id: req.body.customer_id,
@@ -82,6 +89,7 @@ router.post('/book', async (req, res) => {
       booking_amount: req.body.booking_amount,
       time_range: req.body.time_range,
       expired: false,
+      prescription_url
     });
     await bookingData.save();
     res.status(200).json('Booking Successful');
