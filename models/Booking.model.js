@@ -10,6 +10,7 @@ const bookingSchema = new Schema(
     booking_amount: { type: String },
     time_range: { type: Number },
     expired: { type: Boolean },
+    deadline: { type: String },
   },
   {
     timestamps: true,

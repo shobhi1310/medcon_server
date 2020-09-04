@@ -85,14 +85,18 @@ router.get('/past/:id', async (req, res) => {
 router.post('/book', async (req, res) => {
   //console.log(req.params);
   try {
+    let deadline = moment().add(req.body.time_range, 'm');
+
     let bookingData = new bookingModel({
       customer_id: req.body.customer_id,
       shop_id: req.body.shop_id,
       medicine_id: req.body.medicine_id,
       booking_amount: req.body.booking_amount,
       time_range: req.body.time_range,
+      deadline: deadline.format('HH:mm'),
       expired: false,
     });
+    //console.log(bookingData);
     await bookingData.save();
     res.status(200).json('Booking Successful');
   } catch (error) {
