@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const shopModel = require('../models/Shop.model');
 const medicineModel = require('../models/Medicine.model');
-const Medicine = require('../models/Medicine.model');
+//const Medicine = require('../models/Medicine.model');
 
 router.get('/city', (req, res) => {
   shopModel
@@ -44,18 +44,35 @@ router.post('/:ShopID/addMedicine/:MedicineID', (req, res) => {
   const shopID = req.params.ShopID;
   const medicineID = req.params.MedicineID;
   try {
-    shopModel.findById(shopID).then((Shop) => {
-      //console.log(Shop);
-      var status = req.body.status === 'true';
-      Shop.medicines.push({ medicine: medicineID, status });
-      Shop.save();
-    });
+    //console.log('ADDING');
+    var status = req.body.status === 'true';
+    // shopModel.findById(shopID).then((Shop) => {
+    //   console.log(Shop);
 
-    if (req.body.status === 'true') {
-      medicineModel.findById(medicineID).then((Medicine) => {
-        Medicine.shops.push(shopID);
-        Medicine.save();
-      });
+    //   // Shop.medicines.push({ medicine: medicineID, status });
+    //   // Shop.save();
+    // });
+
+    shopModel.update(
+      { _id: shopID },
+      { $addToSet: { medicines: { medicine: medicineID, status } } },
+      (err, num) => {
+        console.log(err, num);
+      }
+    );
+
+    if (status) {
+      // medicineModel.findById(medicineID).then((Medicine) => {
+      //   Medicine.shops.push(shopID);
+      //   Medicine.save();
+      // });
+      medicineModel.update(
+        { _id: medicineID },
+        { $addToSet: { shops: shopID } },
+        (err, num) => {
+          console.log(err, num);
+        }
+      );
     }
     res.status(200).json({
       message: 'added',
@@ -109,20 +126,28 @@ router.post('/:ShopID/update/:MedicineID', (req, res) => {
 router.delete('/:ShopID/remove/:MedicineID', (req, res) => {
   const shopID = req.params.ShopID;
   const medicineID = req.params.MedicineID;
+  console.log(shopID, medicineID);
   try {
-    shopModel.findById(shopID).then((Shop) => {
-      //console.log(Shop);
+    shopModel
+      .findById(shopID)
+      .then((Shop) => {
+        //console.log(Shop);
+        //console.log(shop.medicines);
+        Shop.medicines = Shop.medicines.filter(({ medicine }) => {
+          return medicine != medicineID;
+        });
+        //console.log(Shop.medicines);
 
-      Shop.medicines = Shop.medicines.filter(({ medicine }) => {
-        return medicine != medicineID;
+        Shop.save();
+      })
+      .catch((err) => {
+        console.log(err);
       });
-
-      Shop.save();
-    });
 
     //If status is set to false then remove the Medicine from shops Array
     //console.log('Deleting...');
     medicineModel.findById(medicineID).then((Medicine) => {
+      //console.log(Medicine);
       Medicine.shops = Medicine.shops.filter((id) => id != shopID);
       Medicine.save();
     });
