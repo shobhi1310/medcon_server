@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const mongoose = require('mongoose');
 const shopModel = require('../models/Shop.model');
 const medicineModel = require('../models/Medicine.model');
 //const Medicine = require('../models/Medicine.model');
@@ -53,11 +54,20 @@ router.post('/:ShopID/addMedicine/:MedicineID', (req, res) => {
     //   // Shop.save();
     // });
 
+    let Shop = null;
+    shopModel.findById(shopID).then((shop) => {
+      Shop = shop;
+    });
+
     shopModel.update(
-      { _id: shopID },
+      {
+        _id: shopID,
+        'medicines.medicine': { $ne: mongoose.Types.ObjectId(medicineID) },
+      },
+
       { $addToSet: { medicines: { medicine: medicineID, status } } },
       (err, num) => {
-        console.log(err, num);
+        //console.log(err, num);
       }
     );
 
@@ -66,11 +76,12 @@ router.post('/:ShopID/addMedicine/:MedicineID', (req, res) => {
       //   Medicine.shops.push(shopID);
       //   Medicine.save();
       // });
+
       medicineModel.update(
         { _id: medicineID },
         { $addToSet: { shops: shopID } },
         (err, num) => {
-          console.log(err, num);
+          //console.log(err, num);
         }
       );
     }
@@ -160,28 +171,28 @@ router.delete('/:ShopID/remove/:MedicineID', (req, res) => {
   }
 });
 
-router.post('/location/:id', async(req, res) => {
+router.post('/location/:id', async (req, res) => {
   let shop;
   try {
-    shop = await shopModel.findById(req.params.id)
+    shop = await shopModel.findById(req.params.id);
 
-    var latitude = req.body.latitude
-    var longitude = req.body.longitude
-    var location = []
-    location.push(latitude)
-    location.push(longitude)
-    var query = { _id: req.params.id }
+    var latitude = req.body.latitude;
+    var longitude = req.body.longitude;
+    var location = [];
+    location.push(latitude);
+    location.push(longitude);
+    var query = { _id: req.params.id };
     console.log(location);
-    shopModel.updateOne(query, {location}, (err, response) => {
-      if(err) {
+    shopModel.updateOne(query, { location }, (err, response) => {
+      if (err) {
         throw err;
       }
-    })
+    });
 
-    res.status(200).json("Location Added Successfully")
+    res.status(200).json('Location Added Successfully');
   } catch (error) {
-    res.status(404).json(error)
+    res.status(404).json(error);
   }
-})
+});
 
 module.exports = router;

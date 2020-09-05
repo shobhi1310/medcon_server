@@ -47,7 +47,7 @@ router.route('/shoplist/:id').post(async (req, res) => {
     let travelMode = 'walking';
     let origins = latitude + ',' + longitude;
     let destinations = '';
-    //console.log(medicine.shops);
+    console.log(medicine.shops.length);
     let allShops = [];
 
     medicine.shops.forEach(({ location }) => {
@@ -75,7 +75,7 @@ router.route('/shoplist/:id').post(async (req, res) => {
         if (err) {
           res.json(err);
         } else {
-          //console.log(data.resourceSets[0].resources[0].results);
+          console.log(data.resourceSets[0].resources[0].results);
           const distances = data.resourceSets[0].resources[0].results;
           medicine.shops.forEach(
             ({ location, _id, name, address, phone }, index) => {
