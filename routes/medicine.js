@@ -92,8 +92,8 @@ router.route('/shoplist/:id').post(async (req, res) => {
           allShops.sort((shop1, shop2) => {
             return shop1.travelDistance > shop2.travelDistance;
           });
-          //console.log(allShops);
-          res.json(allShops);
+          console.log(allShops);
+          res.json({ shops: allShops });
         }
       }
     );
