@@ -1,5 +1,5 @@
 # medcon_server
-For hosting the server
+For hosting the server for the Android App named [MedConnect](https://github.com/shobhi1310/MedConnect). Follow the instructions in the README.md of MedConnect to experience the app.
 
 ## Requirements
 
