@@ -47,14 +47,24 @@ router.route('/shoplist/:id').post(async (req, res) => {
     let travelMode = 'walking';
     let origins = latitude + ',' + longitude;
     let destinations = '';
-    console.log(medicine.shops.length);
+
     let allShops = [];
 
-    medicine.shops.forEach(({ location }) => {
+    if (medicine.shops.length === 0) {
+      res.json({ shops: allShops });
+      return;
+    }
+
+    let shopsWithLocation = medicine.shops.filter(({ location }) => {
+      return location && location.length !== 0;
+    });
+
+    shopsWithLocation.forEach(({ location }) => {
       if (location && location.length !== 0) {
         destinations += location[0] + ',' + location[1] + ';';
       }
     });
+
     destinations = destinations.substr(0, destinations.length - 1);
 
     url =
@@ -75,9 +85,9 @@ router.route('/shoplist/:id').post(async (req, res) => {
         if (err) {
           res.json(err);
         } else {
-          console.log(data.resourceSets[0].resources[0].results);
+          //console.log(data.resourceSets[0].resources[0].results);
           const distances = data.resourceSets[0].resources[0].results;
-          medicine.shops.forEach(
+          shopsWithLocation.forEach(
             ({ location, _id, name, address, phone }, index) => {
               allShops.push({
                 location,
@@ -92,7 +102,7 @@ router.route('/shoplist/:id').post(async (req, res) => {
           allShops.sort((shop1, shop2) => {
             return shop1.travelDistance > shop2.travelDistance;
           });
-          console.log(allShops);
+
           res.json({ shops: allShops });
         }
       }

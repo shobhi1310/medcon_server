@@ -41,11 +41,9 @@ router.route('/medicinelist/:id').get(async (req, res) => {
 });
 
 router.post('/:ShopID/addMedicine/:MedicineID', (req, res) => {
-  //console.log('API Called', req.body);
   const shopID = req.params.ShopID;
   const medicineID = req.params.MedicineID;
   try {
-    //console.log('ADDING');
     var status = req.body.status === 'true';
     // shopModel.findById(shopID).then((Shop) => {
     //   console.log(Shop);
@@ -102,7 +100,6 @@ router.post('/:ShopID/update/:MedicineID', (req, res) => {
       for (let i = 0; i < Shop.medicines.length; i++) {
         //console.log(Shop.medicines[i].medicine, medicineID);
         if (Shop.medicines[i].medicine == medicineID) {
-          console.log('updated');
           Shop.medicines[i].status = !Shop.medicines[i].status;
 
           if (Shop.medicines[i].status) {
@@ -182,7 +179,7 @@ router.post('/location/:id', async (req, res) => {
     location.push(latitude);
     location.push(longitude);
     var query = { _id: req.params.id };
-    console.log(location);
+
     shopModel.updateOne(query, { location }, (err, response) => {
       if (err) {
         throw err;
