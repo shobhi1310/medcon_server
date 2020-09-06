@@ -80,12 +80,17 @@ router.route('/profile/update/:id').post(async (req,res)=>{
     let user = null;
 
     try{
-        user = await customerModel.findById(req.params.id);
-        var isCustomer = false;
-        if(user===null || user === undefined){
-            user = await shopModel.findById(req.params.id);
+        // user = await customerModel.findById(req.params.id);
+        // var isCustomer = false;
+        // if(user===null || user === undefined){
+        //     user = await shopModel.findById(req.params.id);
+        // }else{
+        //     isCustomer = true;
+        // }
+        if(req.body.isCustomer == "true"){
+            user = await customerModel.findById(req.params.id);
         }else{
-            isCustomer = true;
+            user = await shopModel.findById(req.params.id);
         }
 
         if(user === null || user === undefined){
@@ -97,8 +102,8 @@ router.route('/profile/update/:id').post(async (req,res)=>{
 
         var newName = user.name;
         var newPhone = user.phone;
-        var newPassword = user.password;
-        
+        var newAddress = null;
+        var isCustomer = req.body.isCustomer;
 
 
         // console.log("isCustomer ",isCustomer);
@@ -113,17 +118,16 @@ router.route('/profile/update/:id').post(async (req,res)=>{
         }
 
 
-        if(req.body.password!==null && req.body.password!==undefined && req.body.password.length>0){
-            newPassword = req.body.password;
-        }
+        
 
 
 
         var Query = { _id: req.params.id };
-        var updateValue = { $set: { name: newName , phone: newPhone, password:newPassword} };
+        var updateValue = null;
 
 
         if(isCustomer){
+            updateValue={ $set: { name: newName , phone: newPhone} };
             customerModel.updateOne(Query,updateValue,(err,response)=>{
                 if(err){
                     throw err;
@@ -135,6 +139,10 @@ router.route('/profile/update/:id').post(async (req,res)=>{
     
             res.json({"Success":"Customer Profile has been updated successfully"});
         }else{
+            if(req.body.address!==null && req.body.address!==undefined && req.body.address.length>0){
+                newAddress = req.body.address;
+            }
+            updateValue={ $set: { name: newName , phone: newPhone,address:newAddress} };
             shopModel.updateOne(Query,updateValue,(err,response)=>{
                 if(err){
                     throw err;
@@ -148,7 +156,7 @@ router.route('/profile/update/:id').post(async (req,res)=>{
         }
 
     }catch(error){
-        res.status(404).json({"error":error});
+        res.status(404).json({"error":"something went wrong"});
     }
 
 })

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bookingModel = require('../models/Booking.model');
 const customerModel = require('../models/Customer.model');
 const shopModel = require('../models/Shop.model');
-const moment = require('moment')
+const moment = require('moment');
 
 router.get('/current/:id', (req, res) => {
   const id = req.params.id;
