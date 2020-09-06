@@ -33,13 +33,6 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 
     $ npm install npm -g
 
-###
-### NPM installation
-  After installing node, just run the following command.
-
-      $ npm init
-
----
 
 ## Install
 
