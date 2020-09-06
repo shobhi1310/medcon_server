@@ -133,11 +133,14 @@ router.route('/profile/update/:id').post(async (req,res)=>{
                     throw err;
                     // return;
                 }
-    
+                
                 
             })
+
+            user = await customerModel.findById(req.params.id);
+            res.json(user);
     
-            res.json({"Success":"Customer Profile has been updated successfully"});
+            
         }else{
             if(req.body.address!==null && req.body.address!==undefined && req.body.address.length>0){
                 newAddress = req.body.address;
@@ -152,7 +155,8 @@ router.route('/profile/update/:id').post(async (req,res)=>{
                 
             })
     
-            res.json({"Success":"Shop Owner Profile has been updated successfully"});
+            user = await shopModel.findById(req.params.id);
+            res.json(user);
         }
 
     }catch(error){

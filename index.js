@@ -15,9 +15,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 const uri = process.env.URI;
+// const uri = "mongodb://localhost:27017/medconnect";
 
 mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true });
 const connection = mongoose.connection;
+
+
+// mongoose.connect(uri,{useNewUrlParser:true});
+
 
 let gfs;
 connection.once('open', () => {
@@ -45,7 +50,7 @@ app.use('/images', imageRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
-  // console.log(process.env.URI);
+  console.log(process.env.URI);
 });
 
 app.get('/', (req, res) => {
