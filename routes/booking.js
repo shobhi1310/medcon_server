@@ -83,7 +83,7 @@ router.get('/past/:id', async (req, res) => {
   res.json(past);
 });
 
-router.post('/book',async (req, res) => {
+router.post('/book', async (req, res) => {
   //console.log(req.params);
   // let prescription_url;
   // if(req.file==''){
@@ -92,7 +92,7 @@ router.post('/book',async (req, res) => {
   //   prescription_url = `${req.file.filename}`
   // }
   try {
-    let deadline = moment().utcOffset('+05:30').add(30, 'm');
+    let deadline = moment().utcOffset('+05:30').add(req.body.time_range, 'm');
 
     let bookingData = new bookingModel({
       customer_id: req.body.customer_id,
