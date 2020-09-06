@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const moment = require('moment');
 
 require('dotenv').config();
 
@@ -17,8 +18,13 @@ const uri = process.env.URI;
 
 mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true });
 const connection = mongoose.connection;
+
+let gfs;
 connection.once('open', () => {
-  console.log('MongoDB database connection established successfully');
+  gfs = new mongoose.mongo.GridFSBucket(connection.db, {
+    bucketName: 'uploads',
+  });
+  app.locals.gfs = gfs;
 });
 
 
@@ -29,11 +35,13 @@ const medicineRouter = require('./routes/medicine');
 const usersRouter = require('./routes/user');
 const shopRouter = require('./routes/shop');
 const bookingRouter = require('./routes/booking');
+const imageRouter = require('./routes/images');
 
 app.use('/medicine', medicineRouter);
 app.use('/user', usersRouter);
 app.use('/shop', shopRouter);
 app.use('/booking', bookingRouter);
+app.use('/images', imageRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
@@ -42,5 +50,6 @@ app.listen(port, () => {
 
 app.get('/', (req, res) => {
   console.log('Hello!!!');
+  // console.log(moment().utcOffset('+05:30').add(30, 'm').format('HH:mm'));
   res.json('hello');
 });
