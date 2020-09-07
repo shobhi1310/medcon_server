@@ -128,7 +128,7 @@ router.route('/profile/update/:id').post(async (req,res)=>{
 
         if(isCustomer){
             updateValue={ $set: { name: newName , phone: newPhone} };
-            customerModel.updateOne(Query,updateValue,(err,response)=>{
+            await customerModel.updateOne(Query,updateValue,(err,response)=>{
                 if(err){
                     throw err;
                     // return;
@@ -146,7 +146,7 @@ router.route('/profile/update/:id').post(async (req,res)=>{
                 newAddress = req.body.address;
             }
             updateValue={ $set: { name: newName , phone: newPhone,address:newAddress} };
-            shopModel.updateOne(Query,updateValue,(err,response)=>{
+            await shopModel.updateOne(Query,updateValue,(err,response)=>{
                 if(err){
                     throw err;
                     // return;
