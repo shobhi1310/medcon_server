@@ -80,14 +80,8 @@ router.route('/profile/update/:id').post(async (req,res)=>{
     let user = null;
 
     try{
-        // user = await customerModel.findById(req.params.id);
-        // var isCustomer = false;
-        // if(user===null || user === undefined){
-        //     user = await shopModel.findById(req.params.id);
-        // }else{
-        //     isCustomer = true;
-        // }
-        if(req.body.isCustomer == "true"){
+
+        if(req.body.isCustomer === "true"){
             user = await customerModel.findById(req.params.id);
         }else{
             user = await shopModel.findById(req.params.id);
@@ -126,7 +120,7 @@ router.route('/profile/update/:id').post(async (req,res)=>{
         var updateValue = null;
 
 
-        if(isCustomer){
+        if(isCustomer === "true"){
             updateValue={ $set: { name: newName , phone: newPhone} };
             await customerModel.updateOne(Query,updateValue,(err,response)=>{
                 if(err){
