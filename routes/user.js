@@ -78,13 +78,17 @@ router.route('/profile/update/:id').post(async (req,res)=>{
     //i assuming customer can change its name,password and phone no
     //he/she can't change its email-id
     let user = null;
-
+    var newName
+    var newPhone
+    var newAddress = null;
+    var isCustomer
     try{
 
         if(req.body.isCustomer === "true"){
             user = await customerModel.findById(req.params.id);
         }else{
             user = await shopModel.findById(req.params.id);
+            newAddress = user.address;
         }
 
         if(user === null || user === undefined){
@@ -94,11 +98,9 @@ router.route('/profile/update/:id').post(async (req,res)=>{
 
         // res.status(200).json(user);
 
-        var newName = user.name;
-        var newPhone = user.phone;
-        var newAddress = null;
-        var isCustomer = req.body.isCustomer;
-
+        newName = user.name;
+        newPhone = user.phone;
+        isCustomer = req.body.isCustomer;
 
         // console.log("isCustomer ",isCustomer);
 
@@ -111,14 +113,8 @@ router.route('/profile/update/:id').post(async (req,res)=>{
             newPhone = req.body.phone;
         }
 
-
-        
-
-
-
         var Query = { _id: req.params.id };
         var updateValue = null;
-
 
         if(isCustomer === "true"){
             updateValue={ $set: { name: newName , phone: newPhone} };
@@ -127,14 +123,11 @@ router.route('/profile/update/:id').post(async (req,res)=>{
                     throw err;
                     // return;
                 }
-                
-                
             })
 
             user = await customerModel.findById(req.params.id);
             res.json(user);
     
-            
         }else{
             if(req.body.address!==null && req.body.address!==undefined && req.body.address.length>0){
                 newAddress = req.body.address;
@@ -145,18 +138,14 @@ router.route('/profile/update/:id').post(async (req,res)=>{
                     throw err;
                     // return;
                 }
-    
-                
             })
     
             user = await shopModel.findById(req.params.id);
             res.json(user);
         }
-
     }catch(error){
         res.status(404).json({"error":"something went wrong"});
     }
-
 })
 
 module.exports = router
