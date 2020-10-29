@@ -37,7 +37,7 @@ router.route('/allopathic/:sub_category').get(async (req, res) => {
         image_url: 1,
       }
     );
-    res.json({ data: medicines });
+    res.json(medicines);
   } catch (error) {
     res.json(error);
   }
@@ -65,7 +65,6 @@ router.route('/ayurvedic/:sub_category').get(async (req, res) => {
 });
 
 router.route('/:id').get(async (req, res) => {
-  console.log('here');
   const id = req.params.id;
   let medicine;
   try {
