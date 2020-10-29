@@ -7,6 +7,9 @@ const medicineSchema = new Schema({
   manufacturer: { type: String },
   strength: { type: String },
   prescription: { type: Boolean },
+  category: { type: String },
+  sub_category: { type: String },
+  price: { type: Number },
   shops: [
     {
       type: Schema.Types.ObjectId,

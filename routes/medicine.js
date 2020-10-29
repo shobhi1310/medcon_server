@@ -22,6 +22,48 @@ router.route('/fetch/:text').get(async (req, res) => {
   }
 });
 
+router.route('/allopathic/:sub_category').get(async (req, res) => {
+  const sub_category = req.params.sub_category;
+  try {
+    medicines = await medicineModel.find(
+      { category: 'allopathic', sub_category },
+      {
+        _id: 1,
+        name: 1,
+        manufacturer: 1,
+        strength: 1,
+        prescription: 1,
+        price: 1,
+        image_url: 1,
+      }
+    );
+    res.json({ data: medicines });
+  } catch (error) {
+    res.json(error);
+  }
+});
+
+router.route('/ayurvedic/:sub_category').get(async (req, res) => {
+  const sub_category = req.params.sub_category;
+  try {
+    medicines = await medicineModel.find(
+      { category: 'ayurvedic', sub_category },
+      {
+        _id: 1,
+        name: 1,
+        manufacturer: 1,
+        strength: 1,
+        prescription: 1,
+        price: 1,
+        image_url: 1,
+      }
+    );
+    res.json({ data: medicines });
+  } catch (error) {
+    res.json(error);
+  }
+});
+
 router.route('/:id').get(async (req, res) => {
   console.log('here');
   const id = req.params.id;
