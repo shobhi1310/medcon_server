@@ -154,4 +154,38 @@ router.route('/shoplist/:id').post(async (req, res) => {
   }
 });
 
+
+router.route('/addMedicines').post(async (req,res)=>{
+  
+  try {
+      console.log(req.body);
+      let medicineData = {
+        name:req.body.name,
+        image_url:req.body.image_url,
+        manufacturer:req.body.manufacturer,
+        strength:req.body.strength,
+        prescription:req.body.prescription,
+        category:req.body.category,
+        sub_category:req.body.sub_category,
+        price:req.body.price,
+        shops:req.body.shops
+      }
+      console.log("inside add medicine route");
+      let newMedicine =await new medicineModel(medicineData);
+
+      await newMedicine.save((err)=>{
+        if(err){
+          res.json({"error":err});
+        }else{
+          res.json({"success":"data has been updated successfully"});
+        }
+      });
+
+
+
+  } catch (error) {
+    res.json(error);
+  }
+})
+
 module.exports = router;
