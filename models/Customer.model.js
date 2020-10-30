@@ -13,6 +13,10 @@ const customerSchema = new Schema({
     booking_history:[{
         type:Schema.Types.ObjectId,
         ref:'bookings'
+    }],
+    cart:[{
+        medicine:{type:Schema.Types.ObjectId,ref:'medicines'},
+        shop:{type:Schema.Types.ObjectId,ref:'shops'}
     }]
 },{
     timestamps:true
