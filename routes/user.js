@@ -159,4 +159,22 @@ router.route('/cart/view/:id').get(async (req,res)=>{
     }
 })
 
+router.route('/cart/add/:id').post(async (req, res) => {
+    const user_id = req.params.id;
+    const med_id = req.body.med_id;
+    const shop_id = req.body.shop_id;
+    
+    let cart_item = {
+        medicine:  med_id ,
+        shop:  shop_id 
+    }
+    console.log(cart_item);
+    try {
+        await customerModel.findByIdAndUpdate(user_id, {$push: {cart: cart_item}})
+        res.json("Successfully Added")
+    } catch (error) {
+        res.status(400).json(error)
+    }
+})
+
 module.exports = router
