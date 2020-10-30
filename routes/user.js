@@ -148,4 +148,15 @@ router.route('/profile/update/:id').post(async (req,res)=>{
     }
 })
 
+router.route('/cart/view/:id').get(async (req,res)=>{
+    const user_id = req.params.id;
+    let cart_items;
+    try {
+        cart_items = await customerModel.findById(user_id,{cart:1}).populate({path:'cart.medicine cart.shop'})
+        res.json(cart_items);
+    } catch (error) {
+        res.status(400).json(error)
+    }
+})
+
 module.exports = router
