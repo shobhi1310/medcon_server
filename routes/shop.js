@@ -6,7 +6,7 @@ const medicineModel = require('../models/Medicine.model');
 
 router.get('/city', (req, res) => {
   shopModel
-    .find({}, { location: 1 })
+    .find({}, {_id:1,name:1,address:1,location: 1 })
     .then((shops) => {
       const shopList = { shops };
       res.json(shopList);
