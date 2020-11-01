@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const request = require('request');
 const shopModel = require('../models/Shop.model');
+const medicineModel = require('../models/Medicine.model');
 
 router.post('/', async (req, res) => {
     const origin_lat = req.body.latitude;
@@ -33,7 +34,7 @@ router.post('/', async (req, res) => {
                 searchedMedicines = []
                 tags.map((tag) => {
                     let med = medicines.find((m) => {
-                        return m.medicine == tag.id;
+                        return m.medicine == tag._id;
                     });
                     if (med != null) {
                         searchedMedicines.push(med);
