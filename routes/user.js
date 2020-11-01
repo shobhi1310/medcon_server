@@ -148,6 +148,18 @@ router.route('/profile/update/:id').post(async (req,res)=>{
     }
 })
 
+router.route('/cart/amount/:id').get(async (req,res)=>{
+    const user_id = req.params.id;
+    let cart_items;
+    try {
+        cart_items = await customerModel.findById(user_id,{cart:1}).populate({path:'cart.medicine cart.shop'})
+        
+        res.json({amount:cart_items.cart.length});
+    } catch (error) {
+        res.status(400).json(error)
+    }
+})
+
 router.route('/cart/view/:id').get(async (req,res)=>{
     const user_id = req.params.id;
     let cart_items;
@@ -159,19 +171,26 @@ router.route('/cart/view/:id').get(async (req,res)=>{
     }
 })
 
-router.route('/cart/add/:id').post(async (req, res) => {
+router.route('/cart/add/:id').post( async (req, res) => {
     const user_id = req.params.id;
-    const med_id = req.body.med_id;
-    const shop_id = req.body.shop_id;
-    
-    let cart_item = {
-        medicine:  med_id ,
-        shop:  shop_id 
-    }
-    console.log(cart_item);
+    const medicineList = req.body.medicineList;
     try {
-        await customerModel.findByIdAndUpdate(user_id, {$push: {cart: cart_item}})
-        res.json("Successfully Added")
+        let amount=0;
+        await customerModel.findById(user_id,((err,customer)=>{
+            if(err){
+                console.log(err);
+            }
+            
+            let newCart=[...customer.cart];
+            newCart=newCart.concat(medicineList);
+            //
+            customer.cart=newCart;
+            amount=newCart.length;
+            
+            customer.save();
+            res.json({amount,})
+        }))
+        
     } catch (error) {
         res.status(400).json(error)
     }

@@ -16,7 +16,8 @@ const customerSchema = new Schema({
     }],
     cart:[{
         medicine:{type:Schema.Types.ObjectId,ref:'medicines'},
-        shop:{type:Schema.Types.ObjectId,ref:'shops'}
+        shop:{type:Schema.Types.ObjectId,ref:'shops'},
+        quantity:{type:Number}
     }]
 },{
     timestamps:true
