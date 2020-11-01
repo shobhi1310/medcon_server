@@ -6,7 +6,7 @@ const medicineModel = require('../models/Medicine.model');
 router.post('/', async (req, res) => {
     const origin_lat = req.body.latitude;
     const origin_long = req.body.longitude;
-    const tags = JSON.parse(req.body.tags);
+    const tags = req.body.tags;
     const travelMode = req.body.travelMode;
     const shops = await shopModel.find();
     const base_url = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?";
@@ -24,23 +24,25 @@ router.post('/', async (req, res) => {
     let allShops = [];
     request.get(
         { url: url, json: true, headers: { 'User-Agent': 'request' } },
-        (err, response, data) => {
+        async (err, response, data) => {
           if (err) {
             res.json(err);
           } else {
             const distances = data.resourceSets[0].resources[0].results;
+            // console.log(shops);
             shops.forEach(
               ({ location, _id, name, address, phone, medicines }, index) => {
                 searchedMedicines = []
-                tags.map((tag) => {
+                for(let i = 0; i < tags.length; i++) {
+                    tag = tags[i];
                     let med = medicines.find((m) => {
                         return m.medicine == tag._id;
                     });
                     if (med != null) {
-                        console.log(med);
-                        searchedMedicines.push(med);
+                      searchedMedicines.push(med);
                     }
-                })
+                }
+                console.log("Hellooo");
                 console.log(searchedMedicines);
                 if (searchedMedicines.length != 0) {
                     allShops.push({
@@ -55,6 +57,7 @@ router.post('/', async (req, res) => {
                 }
               }
             );
+            
             allShops.sort((shop1, shop2) => {
                 if (shop1.searchedMedicines.length === shop2.searchedMedicines.length) {
                     return shop1.travelDistance - shop2.travelDistance;
@@ -65,7 +68,6 @@ router.post('/', async (req, res) => {
           }
         }
     );
-    
 })
 
 module.exports = router;
