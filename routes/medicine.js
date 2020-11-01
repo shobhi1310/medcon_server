@@ -82,7 +82,7 @@ router.route('/dailyUseMedicine').get(async (req,res)=>{
   //router will fetch 5 allopathic branded and 5 ayurvedic branded medicines
   try{
     let allopathicMedicines = await medicineModel.find(
-      {category:"allopathic"},
+      {$limit:5,category:"allopathic"},
       {
         _id: 1,
         name: 1,
@@ -97,7 +97,7 @@ router.route('/dailyUseMedicine').get(async (req,res)=>{
     console.log(allopathicMedicines);
 
     let ayurvedicMedicines = await medicineModel.find(
-      {category:"ayurvedic"},
+      {$limit:5,category:"ayurvedic"},
       {
         _id: 1,
         name: 1,
@@ -109,9 +109,11 @@ router.route('/dailyUseMedicine').get(async (req,res)=>{
       }
     );
     console.log(ayurvedicMedicines);
-    let medicine = allopathicMedicines;
-    
-    for(let idx = 0;idx<ayurvedicMedicines.length;idx++){
+
+    let medicine = [];
+
+    for(let idx = 0;idx<allopathicMedicines.length;idx++){
+      medicine.push(allopathicMedicines[idx]);
       medicine.push(ayurvedicMedicines[idx]);
     }
   
