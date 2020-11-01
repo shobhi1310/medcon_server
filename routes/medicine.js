@@ -112,7 +112,7 @@ router.route('/dailyUseMedicine').get(async (req,res)=>{
 
     let medicine = [];
 
-    for(let idx = 0;idx<allopathicMedicines.length;idx++){
+    for(let idx = 0;idx<ayurvedicMedicines.length;idx++){
       medicine.push(allopathicMedicines[idx]);
       medicine.push(ayurvedicMedicines[idx]);
     }
