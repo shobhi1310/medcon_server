@@ -36,6 +36,7 @@ router.post('/', async (req, res) => {
                         return m.medicine == tag.id;
                     });
                     if (med != null) {
+                        console.log(med);
                         searchedMedicines.push(med);
                     }
                 })
