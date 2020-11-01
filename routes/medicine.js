@@ -2,6 +2,16 @@ const router = require('express').Router();
 const request = require('request');
 const medicineModel = require('../models/Medicine.model');
 
+router.route('/tags').get(async (req,res)=>{
+  let tags = [];
+  try {
+    tags = await medicineModel.find({},{_id:1,name:1})
+    res.json(tags)
+  } catch (error) {
+    res.json(error)
+  }
+})
+
 router.route('/fetch/:text').get(async (req, res) => {
   const query = req.params.text;
   let medicines;
@@ -63,6 +73,58 @@ router.route('/ayurvedic/:sub_category').get(async (req, res) => {
     res.json(error);
   }
 });
+
+
+router.route('/dailyUseMedicine').get(async (req,res)=>{
+
+  // console.log("hi")
+  // res.json({"status":"hi"})
+  //router will fetch 5 allopathic branded and 5 ayurvedic branded medicines
+  try{
+    let allopathicMedicines = await medicineModel.find(
+      {category:"allopathic"},
+      {
+        _id: 1,
+        name: 1,
+        manufacturer: 1,
+        strength: 1,
+        prescription: 1,
+        price: 1,
+        image_url: 1,
+      }
+    ).limit(5);
+
+    console.log(allopathicMedicines);
+
+    let ayurvedicMedicines = await medicineModel.find(
+      {category:"ayurvedic"},
+      {
+        _id: 1,
+        name: 1,
+        manufacturer: 1,
+        strength: 1,
+        prescription: 1,
+        price: 1,
+        image_url: 1,
+      }
+    ).limit(5);
+    console.log(ayurvedicMedicines);
+
+    let medicine = [];
+
+    for(let idx = 0;idx<ayurvedicMedicines.length;idx++){
+      medicine.push(allopathicMedicines[idx]);
+      medicine.push(ayurvedicMedicines[idx]);
+    }
+  
+    res.json({data:medicine});
+  }catch(err){
+    res.json(err);
+  }
+
+
+  
+})
 
 router.route('/:id').get(async (req, res) => {
   const id = req.params.id;
@@ -186,6 +248,9 @@ router.route('/addMedicines').post(async (req,res)=>{
   } catch (error) {
     res.json(error);
   }
-})
+});
+
+
+
 
 module.exports = router;
