@@ -13,48 +13,76 @@ router.route('/login').post(async(req, res)=>{
     
     try {
         // console.log(query);
-        let user = {}
+        let user = null;
         if(customer) {
             user = await customerModel.findOne({email_id: query['email'], password: query['password']})
         } else {
             user = await shopModel.findOne({email_id: query.email, password: query.password})
         }
         // console.log(user);
+        if(user===null || user === undefined){
+            req.flash("error","Invalid username or password");
+            res.json({"error":"Invalid username or password"});
+            return;
+        }
         res.status(200).json(user)
     } catch (error) {
-        res.json(error)
+        req.flash("error","Something went wrong");
+        res.json({"error":"something went wrong"})
+        return;
     }
 })
 
-router.route('/register').post((req,res)=>{
-    let newUser = {}
-    var isCustomer = (req.body.isCustomer==='true');
-    if(isCustomer) {
-        newUser = new customerModel({
-            name: req.body.name,
-            email_id: req.body.email,
-            password: req.body.password,
-            phone: req.body.phone
-        })
-    } else {
-        newUser = new shopModel({
-            name: req.body.name,
-            email_id: req.body.email,
-            password: req.body.password,
-            address: req.body.address,
-            phone: req.body.phone,
-            license: req.body.license
-        })
-    }
+router.route('/register').post(async (req,res)=>{
+    try{
+        let newUser = null;
+        var isCustomer = (req.body.isCustomer==='true');
 
-    newUser.save((error, user) => {
-        if (error) {
-            res.json(error)
-        } else {
-            res.json(user)
-            // res.json("Successfully Registered")
+        if(isCustomer){
+            newUser = await customerModel.findOne({email_id:req.body.email});
+        }else{
+            newUser = await shopModel.findOne({email_id:req.body.email});
         }
-    })
+
+        if(newUser !== null){
+            req.flash("error","emailId already exists");
+            res.json({"error":"emailId already exists"})
+            return;
+        }
+
+        if(isCustomer) {
+            newUser = await new customerModel({
+                name: req.body.name,
+                email_id: req.body.email,
+                password: req.body.password,
+                phone: req.body.phone
+            })
+        } else {
+            newUser = await new shopModel({
+                name: req.body.name,
+                email_id: req.body.email,
+                password: req.body.password,
+                address: req.body.address,
+                phone: req.body.phone,
+                license: req.body.license
+            })
+        }
+    
+        await newUser.save((error, user) => {
+            if (error) {
+                req.flash('error',"something went wrong while saving data to database");
+                res.json({"error":"something went wrong while saving data to database"});
+                return;
+            } else {
+                res.json(user)
+                // res.json("Successfully Registered")
+            }
+        })
+    }catch(err){
+        req.flash('error',"something went wrong");
+        res.json({"error":"something went wrong"})
+        return;
+    }
 })
 
 router.route('/:id').get(async(req, res) => {
