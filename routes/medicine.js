@@ -57,7 +57,7 @@ router.route('/ayurvedic/:sub_category').get(async (req, res) => {
   const sub_category = req.params.sub_category;
   try {
     medicines = await medicineModel.find(
-      { category: 'Ayurvedic', sub_category },
+      { category: 'ayurvedic', sub_category },
       {
         _id: 1,
         name: 1,
