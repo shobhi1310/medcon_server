@@ -44,19 +44,33 @@ router.post('/', async (req, res) => {
                 }
                 console.log("Hellooo");
                 console.log(searchedMedicines);
-                if (searchedMedicines.length != 0) {
+
+                let populatedMedicines = [];
+                let promises = [];
+                for (i = 0; i < searchedMedicines.length; i++) {
+                  promises.push(
+                    medicineModel.findById(searchedMedicines[i].medicine,(err,response)=>{
+                      populatedMedicines.push(response);
+                    })
+                  )
+                }
+
+                Promise.all(promises).then(() => console.log("Populated",_id,populatedMedicines));
+
+                if (populatedMedicines.length != 0) {
                     allShops.push({
                         location,
                         _id,
                         name,
                         address,
                         phone,
-                        searchedMedicines,
+                        searchedMedicines:populatedMedicines,
                         travelDistance: distances[index].travelDistance,
                     });
                 }
               }
             );
+            console.log("ALL",allShops)
             
             allShops.sort((shop1, shop2) => {
                 if (shop1.searchedMedicines.length === shop2.searchedMedicines.length) {
