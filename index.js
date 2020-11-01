@@ -34,20 +34,19 @@ connection.once('open', () => {
 });
 
 
-
-
-
 const medicineRouter = require('./routes/medicine');
 const usersRouter = require('./routes/user');
 const shopRouter = require('./routes/shop');
 const bookingRouter = require('./routes/booking');
 const imageRouter = require('./routes/images');
+const searchRouter = require('./routes/search')
 
 app.use('/medicine', medicineRouter);
 app.use('/user', usersRouter);
 app.use('/shop', shopRouter);
 app.use('/booking', bookingRouter);
 app.use('/images', imageRouter);
+app.use('/search', searchRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
