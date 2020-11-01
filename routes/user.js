@@ -231,4 +231,60 @@ router.route('/cart/add/:id').post( async (req, res) => {
     }
 })
 
+router.route('/cart/changeQuantity/:id').post( async (req, res) => {
+    const user_id = req.params.id;
+    const medicineItem = req.body.medicineItem;
+    console.log(req.body)
+    const newQuantity=req.body.newQuantity;
+    try {
+        await customerModel.findById(user_id,((err,customer)=>{
+            if(err){
+                console.log(err);
+            }
+            let newCart=[...customer.cart];
+
+
+            for(let i=0;i<newCart.length;i++){
+             
+                if(newCart[i]._id==medicineItem._id){
+                    newCart[i].quantity=newQuantity;
+                   
+                    break;
+                }
+            }
+            customer.cart=newCart;
+
+            customer.save();
+            res.json("Successfully changed")
+        }))
+        
+    } catch (error) {
+        res.status(400).json(error)
+    }
+})
+
+router.route('/cart/removeMedicine/:id').post(async (req, res) => {
+    
+    const user_id = req.params.id;
+    const medicineItem = req.body.medicineItem;
+    
+    try {
+        await customerModel.findById(user_id,((err,customer)=>{
+            if(err){
+                console.log(err);
+            }
+            let newCart=customer.cart.filter((med)=>{
+                return med._id!=medicineItem._id;
+            });
+            customer.cart=newCart;
+
+            customer.save();
+            res.json("Successfully Deleted")
+        }))
+        
+    } catch (error) {
+        res.status(400).json(error)
+    }
+})
+
 module.exports = router
