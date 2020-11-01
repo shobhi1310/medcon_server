@@ -2,6 +2,16 @@ const router = require('express').Router();
 const request = require('request');
 const medicineModel = require('../models/Medicine.model');
 
+router.route('/tags').get(async (req,res)=>{
+  let tags = [];
+  try {
+    tags = await medicineModel.find({},{_id:1,name:1})
+    res.json(tags)
+  } catch (error) {
+    res.json(error)
+  }
+})
+
 router.route('/fetch/:text').get(async (req, res) => {
   const query = req.params.text;
   let medicines;
