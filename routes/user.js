@@ -9,87 +9,56 @@ router.route('/login').post(async(req, res)=>{
         isCustomer: req.body.isCustomer
     }
 
-
     console.log(query)
     
     var customer = (req.body.isCustomer === true)
     
     try {
         // console.log(query);
-        let user = null;
+        let user = {};
         if(customer) {
             user = await customerModel.findOne({email_id: query['email'], password: query['password']})
         } else {
             user = await shopModel.findOne({email_id: query.email, password: query.password})
         }
-        console.log(user);
-        if(user===null || user === undefined){
-            console.log("error");
-            res.json({"error":"Invalid username or password"});
-            req.flash("error","Invalid username or password");
-            
-            return;
-        }
+        
         // console.log(user);
         res.status(200).json(user)
         // res.redirect('/');
     } catch (error) {
-        req.flash("error","Something went wrong");
-        res.json({"error":"something went wrong"})
-        return;
+        res.json(error)
     }
 })
 
-router.route('/register').post(async (req,res)=>{
-    try{
-        let newUser = null;
-        var isCustomer = (req.body.isCustomer==='true');
-
-        if(isCustomer){
-            newUser = await customerModel.findOne({email_id:req.body.email});
-        }else{
-            newUser = await shopModel.findOne({email_id:req.body.email});
-        }
-
-        if(newUser !== null){
-            req.flash("error","emailId already exists");
-            res.json({"error":"emailId already exists"})
-            return;
-        }
-
-        if(isCustomer) {
-            newUser = await new customerModel({
-                name: req.body.name,
-                email_id: req.body.email,
-                password: req.body.password,
-                phone: req.body.phone
-            })
-        } else {
-            newUser = await new shopModel({
-                name: req.body.name,
-                email_id: req.body.email,
-                password: req.body.password,
-                address: req.body.address,
-                phone: req.body.phone,
-                license: req.body.license
-            })
-        }
-    
-        await newUser.save((error, user) => {
-            if (error) {
-                req.flash('error',"something went wrong while saving data to database");
-                res.json({"error":"something went wrong while saving data to database"});
-                return;
-            } else {
-                res.json({"success":user});
-                // res.json("Successfully Registered")
-            }
+router.route('/register').post((req,res)=>{
+    let newUser = {}
+    var isCustomer = (req.body.isCustomer==='true');
+    if(isCustomer) {
+        newUser = new customerModel({
+            name: req.body.name,
+            email_id: req.body.email,
+            password: req.body.password,
+            phone: req.body.phone
         })
-    }catch(err){
-        req.flash('error',"something went wrong");
-        res.json({"error":"something went wrong"})
-        return;
+    } else {
+        newUser = new shopModel({
+            name: req.body.name,
+            email_id: req.body.email,
+            password: req.body.password,
+            address: req.body.address,
+            phone: req.body.phone,
+            license: req.body.license
+        })
     }
+    
+    newUser.save((error, user) => {
+        if (error) {
+            res.json(error)
+        } else {
+            res.json(user)
+            // res.json("Successfully Registered")
+        }
+    })
 })
 
 router.route('/:id').get(async(req, res) => {
