@@ -21,12 +21,6 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(session({ cookie: { maxAge: 60000 }, 
-  secret: 'medconnect',
-  resave: false, 
-  saveUninitialized: false}));
-
-app.use(flash());
 const uri = process.env.URI;
 // let uri = "mongodb://localhost:27017/medconnect";
 // console.log(uri);
@@ -44,16 +38,6 @@ connection.once('open', () => {
     bucketName: 'uploads',
   });
   app.locals.gfs = gfs;
-});
-
-//app will use this middleware every time whenever app will get refresh or start
-app.use(function(req,res,next){
-  // res.locals.name = req.user.username ;
-  res.locals.successMessage = req.flash("success");
-  res.locals.errorMessage = req.flash("error");
-  // res.locals.loadingMessage = req.flash("loading");
-  console.log(res.locals);
-  next();
 });
 
 
