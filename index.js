@@ -27,8 +27,8 @@ app.use(session({ cookie: { maxAge: 60000 },
   saveUninitialized: false}));
 
 app.use(flash());
-// const uri = process.env.URI;
-let uri = "mongodb://localhost:27017/medconnect";
+const uri = process.env.URI;
+// let uri = "mongodb://localhost:27017/medconnect";
 // console.log(uri);
 
 // mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true });
