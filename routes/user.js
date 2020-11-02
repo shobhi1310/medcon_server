@@ -11,7 +11,7 @@ router.route('/login').post(async(req, res)=>{
 
     console.log(query)
     
-    var customer = (req.body.isCustomer === true)
+    var customer = (req.body.isCustomer === "true")
     
     try {
         // console.log(query);
