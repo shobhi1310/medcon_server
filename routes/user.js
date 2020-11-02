@@ -8,8 +8,11 @@ router.route('/login').post(async(req, res)=>{
         password: req.body.password,
         isCustomer: req.body.isCustomer
     }
+
+
+    console.log(query)
     
-    var customer = (req.body.isCustomer === 'true')
+    var customer = (req.body.isCustomer === true)
     
     try {
         // console.log(query);
@@ -19,13 +22,17 @@ router.route('/login').post(async(req, res)=>{
         } else {
             user = await shopModel.findOne({email_id: query.email, password: query.password})
         }
-        // console.log(user);
+        console.log(user);
         if(user===null || user === undefined){
-            req.flash("error","Invalid username or password");
+            console.log("error");
             res.json({"error":"Invalid username or password"});
+            req.flash("error","Invalid username or password");
+            
             return;
         }
+        // console.log(user);
         res.status(200).json(user)
+        // res.redirect('/');
     } catch (error) {
         req.flash("error","Something went wrong");
         res.json({"error":"something went wrong"})
@@ -74,7 +81,7 @@ router.route('/register').post(async (req,res)=>{
                 res.json({"error":"something went wrong while saving data to database"});
                 return;
             } else {
-                res.json(user)
+                res.json({"success":user});
                 // res.json("Successfully Registered")
             }
         })
