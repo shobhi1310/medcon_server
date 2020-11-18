@@ -250,7 +250,19 @@ router.route('/addMedicines').post(async (req,res)=>{
   }
 });
 
-
+router.route('/comment/:id').post(async (req,res)=>{
+  const id = req.params.id;
+  try {
+    let comment = {
+      user:req.body.user_id,
+      comment:req.body.comment
+    }
+    await medicineModel.findByIdAndUpdate(id,{$push:{comments:comment}});
+    res.json("Success!")
+  } catch (error) {
+    res.json(error)
+  }
+})
 
 
 module.exports = router;
