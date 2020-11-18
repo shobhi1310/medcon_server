@@ -130,7 +130,7 @@ router.route('/:id').get(async (req, res) => {
   const id = req.params.id;
   let medicine;
   try {
-    medicine = await medicineModel.findById(id);
+    medicine = await medicineModel.findById(id).populate({path:'comments.user', select:'name'});
     res.json(medicine);
   } catch (error) {
     res.json(error);

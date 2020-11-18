@@ -16,6 +16,12 @@ const medicineSchema = new Schema({
       ref: 'shops',
     },
   ],
+  comments: [
+    {
+      user:{type: Schema.Types.ObjectId,ref: 'customers'},
+      comment:{type:String}
+    }
+  ]
 });
 
 const Medicine = mongoose.model('medicines', medicineSchema);
