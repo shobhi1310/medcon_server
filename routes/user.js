@@ -154,11 +154,12 @@ router.route('/profile/update/:id').post(async (req,res)=>{
 
 router.route('/cart/amount/:id').get(async (req,res)=>{
     const user_id = req.params.id;
-    let cart_items;
+   
     try {
-        cart_items = await customerModel.findById(user_id,{cart:1}).populate({path:'cart.medicine cart.shop'})
+        cart_amount = await customerModel.findById(user_id,{cartAmount:1})
+        console.log(cart_amount)
         
-        res.json({amount:cart_items.cart.length});
+        res.json({amount:cart_amount.cartAmount});
     } catch (error) {
         res.status(400).json(error)
     }
@@ -186,11 +187,23 @@ router.route('/cart/add/:id').post( async (req, res) => {
             }
             
             let newCart=[...customer.cart];
-            newCart=newCart.concat(medicineList);
-            //
+            amount=customer.cartAmount+medicineList.length;
+            // Change quantity if medicine and shop is same.
+
+            medicineList.forEach(item => {
+                console.log(item);
+                let foundIndex=newCart.findIndex(el=>(el.medicine==item.medicine && el.shop==item.shop));
+                console.log(foundIndex)
+                if(foundIndex===-1){
+                    newCart.push(item);
+                }else{
+                    newCart[foundIndex].quantity+=item.quantity;
+                }
+            });
+
             customer.cart=newCart;
-            amount=newCart.length;
-            
+            customer.cartAmount=amount;
+            console.log(newCart);
             customer.save();
             res.json({amount,})
         }))
@@ -201,6 +214,7 @@ router.route('/cart/add/:id').post( async (req, res) => {
 })
 
 router.route('/cart/changeQuantity/:id').post( async (req, res) => {
+    console.log("Qu")
     const user_id = req.params.id;
     const medicineItem = req.body.medicineItem;
     console.log(req.body)
@@ -211,17 +225,23 @@ router.route('/cart/changeQuantity/:id').post( async (req, res) => {
                 console.log(err);
             }
             let newCart=[...customer.cart];
+            let amount=customer.cartAmount;
 
 
             for(let i=0;i<newCart.length;i++){
              
                 if(newCart[i]._id==medicineItem._id){
+                    amount=amount+(newQuantity-newCart[i].quantity);
                     newCart[i].quantity=newQuantity;
+
+                    
                    
                     break;
                 }
             }
             customer.cart=newCart;
+            customer.cartAmount=amount;
+            console.log(amount)
 
             customer.save();
             res.json("Successfully changed")
@@ -236,16 +256,21 @@ router.route('/cart/removeMedicine/:id').post(async (req, res) => {
     
     const user_id = req.params.id;
     const medicineItem = req.body.medicineItem;
+
     
     try {
         await customerModel.findById(user_id,((err,customer)=>{
             if(err){
                 console.log(err);
             }
+            let amount=customer.cartAmount;
+            amount-=medicineItem.quantity;
             let newCart=customer.cart.filter((med)=>{
                 return med._id!=medicineItem._id;
             });
+
             customer.cart=newCart;
+            customer.cartAmount=amount;
 
             customer.save();
             res.json("Successfully Deleted")
