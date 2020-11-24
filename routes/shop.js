@@ -27,6 +27,23 @@ router.route('/:id').get(async (req, res) => {
   }
 });
 
+router.route('/fetch/:text').post(async (req, res) => {
+  const query = req.params.text;
+  const medicine_id = req.body.med_id;
+  let shops;
+  try {
+    shops = await shopModel
+      .find(
+        { name: new RegExp('^' + query, 'i'), "medicines.medicine" : medicine_id },
+        { _id: 1, name: 1}
+      )
+      .limit(10);
+    res.json(shops)
+  } catch (error) {
+    res.json(error);
+  }
+});
+
 router.route('/medicinelist/:id').get(async (req, res) => {
   const id = req.params.id;
   let shop;
