@@ -112,4 +112,8 @@ router.post('/book', async (req, res) => {
   }
 });
 
+router.post('/book_all', async (req,res)=>{
+  
+});
+
 module.exports = router;

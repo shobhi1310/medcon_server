@@ -11,6 +11,7 @@ const bookingSchema = new Schema(
     time_range: { type: Number },
     expired: { type: Boolean },
     deadline: { type: String },
+    status: { type:String }    // waiting, confirmed, delivered, expired
   },
   {
     timestamps: true,

@@ -209,4 +209,11 @@ router.post('/location/:id', async (req, res) => {
   }
 });
 
+
+router.get('/dashboard', async(req,res)=>{
+  // to be done by Chirag
+});
+
+
 module.exports = router;
+

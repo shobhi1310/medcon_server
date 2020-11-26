@@ -24,9 +24,16 @@ const shopSchema = new Schema(
     ],
     medicines: [
       {
-        _id: false,
         medicine: { type: Schema.Types.ObjectId, ref: 'medicines' },
         status: { type: Boolean },
+        wholeSale_price : {type:Schema.Types.Decimal128},
+        qty_bought_at: 
+          {timestamp:{type:Schema.Types.Date},qty:{type:Schema.Types.Number}}
+        ,
+        qty_sold_at: 
+          {timestamp:{type:Schema.Types.Date},qty:{type:Schema.Types.Number}}
+        ,
+        mfg_date: {type:Schema.Types.Date},
       },
     ],
   },

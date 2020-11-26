@@ -21,7 +21,8 @@ const medicineSchema = new Schema({
       user:{type: Schema.Types.ObjectId,ref: 'customers'},
       comment:{type:String}
     }
-  ]
+  ],
+  expires: {type:Schema.Types.Number}
 });
 
 const Medicine = mongoose.model('medicines', medicineSchema);
