@@ -311,11 +311,7 @@ router.post('/showDate', async(req,res)=>{
 });
 
 
-let letsCheck = (time)=>{
-  // console.log(time)
-  console.log("getTime: ",((new Date()).getTime() - time)/2629746000);
-  return true;
-}
+
 
 
 
