@@ -1,6 +1,7 @@
 const connection = require('../db/mongoose')
 const router = require('express').Router()
 const mongoose = require('mongoose')
+const upload = require('../db/upload')
 const path = require('path')
 
 let gfs
@@ -8,8 +9,29 @@ connection.once('open', ()=>{
   gfs = new mongoose.mongo.GridFSBucket(connection.db, { bucketName: 'uploads' })
 })
 
-router.get('/', (req, res) => {
-  res.sendStatus(200);
+router.post('/upload', upload.single('prsc'), (req, res) => {
+  let prsc_url;
+  console.log(req.file);
+  if(req.file == undefined){
+    prsc_url = ""
+  }else{
+    prsc_url = `${req.file.filename}`
+    // res.json(prsc_url)
+  }
+  res.status(200).json(prsc_url);
+})
+
+router.post('/delete', async (req,res)=>{
+  let file_id;
+  // console.log(req.body);
+  try {
+    let file = await gfs.find({filename:req.body.filename}).toArray()
+    file_id = file[0]._id
+    await gfs.delete(new mongoose.Types.ObjectId(file_id))
+    res.status(200).json("File deleted")
+  } catch (error) {
+    res.json(error)
+  }
 })
 
 router.get('/:filename', (req, res) => {
