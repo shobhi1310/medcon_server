@@ -28,7 +28,7 @@ router.post('/delete', async (req,res)=>{
     let file = await gfs.find({filename:req.body.filename}).toArray()
     file_id = file[0]._id
     await gfs.delete(new mongoose.Types.ObjectId(file_id))
-    res.status(200).json("File delted")
+    res.status(200).json("File deleted")
   } catch (error) {
     res.json(error)
   }

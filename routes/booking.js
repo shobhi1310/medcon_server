@@ -112,8 +112,41 @@ router.post('/book', async (req, res) => {
   }
 });
 
-router.post('/book_all', async (req,res)=>{
-  
+router.post('/book_all',(req,res)=>{
+  let customer_id = req.body.customer_id;
+  let collection = req.body.data;
+  let time_range = req.body.timeRange;
+  let incoming = req.body.uploadedFiles;
+  let deadline = moment().utcOffset('+05:30').add(req.body.timeRange, 'm');
+  let arr = [];
+  for(let i=0;i<collection.length;i++){
+    let prescription_url;
+    for(let j=0;j<incoming.length;j++){
+      if(incoming[j].med_id===collection[i].medicine._id){
+        prescription_url = incoming[j].pr_url;
+        break;
+      }
+    }
+    let booking = {
+      customer_id,
+      shop_id : collection[i].shop._id,
+      medicine_id : collection[i].medicine._id,
+      time_range,
+      expired : false,
+      status : "waiting",
+      booking_amount : collection[i].quantity,
+      prescription_url,
+      deadline
+    }
+    arr.push(booking);
+  }
+  bookingModel.insertMany(arr,(error,doc)=>{
+    if(!error){
+      res.status(200).json("booking done");
+    }else{
+      console.log(error);
+    }
+  })
 });
 
 module.exports = router;
