@@ -257,8 +257,8 @@ router.route('/comment/:id').post(async (req,res)=>{
       user:req.body.user_id,
       comment:req.body.comment
     }
-    let result = await medicineModel.findByIdAndUpdate(id,{$push:{comments:comment}},{new:true});
-    res.json(result.comments)
+    let result = await medicineModel.findByIdAndUpdate(id,{$push:{comments:comment}},{new:true}).populate({path:'comments.user', select:'name'});
+    res.json(result.comments);
   } catch (error) {
     res.json(error)
   }
