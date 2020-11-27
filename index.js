@@ -21,15 +21,15 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const uri = process.env.URI;
-// let uri = "mongodb://localhost:27017/medconnect";
+// const uri = process.env.URI;
+let uri = "mongodb://localhost:27017/medconnect";
 // console.log(uri);
 
-// mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true });
+mongoose.connect(uri, { useNewUrlParser: true, useCreateIndex: true });
 const connection = mongoose.connection;
 
 
-mongoose.connect(uri,{useNewUrlParser:true})
+// mongoose.connect(uri,{useNewUrlParser:true})
 
 
 let gfs;
