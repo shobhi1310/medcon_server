@@ -6,9 +6,9 @@ const upload = multer({ storage,
     fileFilter: function (req, file, callback) {
         var ext = path.extname(file.originalname);
         // png jpg gif and jpeg allowed
-        if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {  
-            return callback(null, false)
-        }
+        // if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {  
+        //     return callback(null, false)
+        // }
         callback(null, true)
     },
     limits:{
