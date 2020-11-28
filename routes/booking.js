@@ -83,6 +83,55 @@ router.get('/past/:id', async (req, res) => {
   res.json(past);
 });
 
+// Below route will group individual medicine bookings
+router.get('/current/shop/:id', (req, res) => {
+  const id = req.params.id;
+  bookingModel
+    .find({ shop_id:id, expired: false })
+    .populate('shop_id')
+    .populate('medicine_id')
+    .populate('customer_id')
+    .then((bookings) => {
+      //console.log(bookings);
+      const currentBookings = {};
+      
+
+      for (let i = 0; i < bookings.length; i++) {
+        let bookingDate = new Date(bookings[i].createdAt);
+        let currentDate = new Date();
+        const timeDifference = (currentDate - bookingDate) / 60000;
+
+        if (timeDifference > bookings[i].time_range) {
+          bookings[i].expired = true;
+          bookings[i].save();
+        } else if(bookings[i].bookingCreationTime){
+          // If the booking has a bookingCreationTime attribute.
+          const singleBookingPrice=parseInt(bookings[i].booking_amount)*bookings[i].medicine_id.price;
+          console.log(bookings[i].bookingCreationTime);
+          if(currentBookings[bookings[i].bookingCreationTime]){
+            currentBookings[bookings[i].bookingCreationTime].items.push(bookings[i]);
+            currentBookings[bookings[i].bookingCreationTime].totalAmount+=singleBookingPrice;
+          }else{
+            currentBookings[bookings[i].bookingCreationTime]={items:[],totalAmount:0};
+            currentBookings[bookings[i].bookingCreationTime].items.push(bookings[i]);
+            currentBookings[bookings[i].bookingCreationTime].totalAmount=singleBookingPrice;
+          }
+          //currentBooking.push(bookings[i]);
+        }
+        //console.log(bookingDate, currentDate, currentDate - bookingDate);
+      }
+
+      let current = {
+        currentBooking:[],
+      };
+      Object.keys(currentBookings).map((key)=>{
+        current.currentBooking.push(currentBookings[key]);
+      })
+      res.json(current);
+    });
+});
+
+
 router.post('/book', async (req, res) => {
   //console.log(req.params);
   // let prescription_url;
@@ -117,6 +166,7 @@ router.post('/book_all',(req,res)=>{
   let collection = req.body.data;
   let time_range = req.body.timeRange;
   let incoming = req.body.uploadedFiles;
+  let bookingCreationTime=new Date();
   let deadline = moment().utcOffset('+05:30').add(req.body.timeRange, 'm');
   let arr = [];
   for(let i=0;i<collection.length;i++){
@@ -136,6 +186,7 @@ router.post('/book_all',(req,res)=>{
       status : "waiting",
       booking_amount : collection[i].quantity,
       prescription_url,
+      bookingCreationTime, //Only value that can be used for grouping
       deadline
     }
     arr.push(booking);
