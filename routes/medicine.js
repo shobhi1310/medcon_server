@@ -230,7 +230,8 @@ router.route('/addMedicines').post(async (req,res)=>{
         category:req.body.category,
         sub_category:req.body.sub_category,
         price:req.body.price,
-        shops:req.body.shops
+        shops:req.body.shops,
+        expires:req.body.expires
       }
       console.log("inside add medicine route");
       let newMedicine =await new medicineModel(medicineData);
@@ -249,6 +250,9 @@ router.route('/addMedicines').post(async (req,res)=>{
     res.json(error);
   }
 });
+
+
+
 
 router.route('/comment/:id').post(async (req,res)=>{
   const id = req.params.id;

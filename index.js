@@ -21,6 +21,8 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+
+
 const uri = process.env.URI;
 // let uri = "mongodb://localhost:27017/medconnect";
 // console.log(uri);
@@ -38,6 +40,12 @@ connection.once('open', () => {
     bucketName: 'uploads',
   });
   app.locals.gfs = gfs;
+});
+
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  next();
 });
 
 
