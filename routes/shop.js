@@ -251,7 +251,7 @@ router.post('/:ShopID/addMedicineForTesting/:MedicineID', (req, res) => {
   const medicineID = req.params.MedicineID;
   try {
     var status = req.body.status === 'true';
-    var wholeSale_price = req.body.wholeSale_price;//only here changes are made
+    var wholesale_price = req.body.wholesale_price;//only here changes are made
     var mfg_date = req.body.mfg_date;// only here changes are made
     var qty_bought_at=req.body.qty_bought_at;
     var qty_sold_at = req.body.qty_sold_at;
@@ -275,7 +275,7 @@ router.post('/:ShopID/addMedicineForTesting/:MedicineID', (req, res) => {
         'medicines.medicine': { $ne: mongoose.Types.ObjectId(medicineID) }
       },
 
-      { $addToSet: { medicines: { medicine: medicineID, status ,wholeSale_price,mfg_date,qty_bought_at,qty_sold_at,available_qty} } },
+      { $addToSet: { medicines: { medicine: medicineID, status ,wholesale_price,mfg_date,qty_bought_at,qty_sold_at,available_qty} } },
       (err, num) => {
         //console.log(err, num);
       }
@@ -362,7 +362,7 @@ router.get('/dashboard/:shopID', async (req,res)=>{
             }
           }
 
-          profit[idx]-= await additionalFunc.getProfit(med.wholeSale_price,obj.qty);
+          profit[idx]-= await additionalFunc.getProfit(med.wholesale_price,obj.qty);
           inHandStock[idx] += obj.qty + await additionalFunc.getCheck(idx,inHandStock);
 
           console.log("bought: ",inHandStock);
@@ -381,7 +381,7 @@ router.get('/dashboard/:shopID', async (req,res)=>{
             }
           }
 
-          profit[idx]+= await additionalFunc.getProfit(med.wholeSale_price,obj.qty);
+          profit[idx]+= await additionalFunc.getProfit(med.wholesale_price,obj.qty);
           soldStock[idx]+=obj.qty + await additionalFunc.getCheck(idx,soldStock);
           inHandStock[idx] -= soldStock[idx];
           inHandStock[idx]+= await additionalFunc.getCheck(idx,inHandStock);
