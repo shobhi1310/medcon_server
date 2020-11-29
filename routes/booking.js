@@ -93,7 +93,8 @@ router.get('/current/shop/:id', (req, res) => {
     .populate('customer_id')
     .then((bookings) => {
       //console.log(bookings);
-      const currentBookings = {};
+      const confirmedBookings = {};
+      const waitingBookings={};
       
 
       for (let i = 0; i < bookings.length; i++) {
@@ -104,33 +105,97 @@ router.get('/current/shop/:id', (req, res) => {
         if (timeDifference > bookings[i].time_range) {
           bookings[i].expired = true;
           bookings[i].save();
-        } else if(bookings[i].bookingCreationTime){
+        } else if(bookings[i].bookingCreationTime && bookings[i].status==="confirmed"){
           // If the booking has a bookingCreationTime attribute.
           const singleBookingPrice=parseInt(bookings[i].booking_amount)*bookings[i].medicine_id.price;
-          console.log(bookings[i].bookingCreationTime);
-          if(currentBookings[bookings[i].bookingCreationTime]){
-            currentBookings[bookings[i].bookingCreationTime].items.push(bookings[i]);
-            currentBookings[bookings[i].bookingCreationTime].totalAmount+=singleBookingPrice;
+          
+          if(confirmedBookings[bookings[i].bookingCreationTime]){
+            confirmedBookings[bookings[i].bookingCreationTime].items.push(bookings[i]);
+            confirmedBookings[bookings[i].bookingCreationTime].totalAmount+=singleBookingPrice;
           }else{
-            currentBookings[bookings[i].bookingCreationTime]={items:[],totalAmount:0};
-            currentBookings[bookings[i].bookingCreationTime].items.push(bookings[i]);
-            currentBookings[bookings[i].bookingCreationTime].totalAmount=singleBookingPrice;
+            confirmedBookings[bookings[i].bookingCreationTime]={items:[],totalAmount:0};
+            confirmedBookings[bookings[i].bookingCreationTime].items.push(bookings[i]);
+            confirmedBookings[bookings[i].bookingCreationTime].totalAmount=singleBookingPrice;
           }
-          //currentBooking.push(bookings[i]);
-        }
-        //console.log(bookingDate, currentDate, currentDate - bookingDate);
+         
+        }else if(bookings[i].bookingCreationTime && bookings[i].status==="waiting"){
+          // If the booking has a bookingCreationTime attribute.
+          const singleBookingPrice=parseInt(bookings[i].booking_amount)*bookings[i].medicine_id.price;
+          
+          if(waitingBookings[bookings[i].bookingCreationTime]){
+            waitingBookings[bookings[i].bookingCreationTime].items.push(bookings[i]);
+            waitingBookings[bookings[i].bookingCreationTime].totalAmount+=singleBookingPrice;
+          }else{
+            waitingBookings[bookings[i].bookingCreationTime]={items:[],totalAmount:0};
+            waitingBookings[bookings[i].bookingCreationTime].items.push(bookings[i]);
+            waitingBookings[bookings[i].bookingCreationTime].totalAmount=singleBookingPrice;
+          }
       }
+    }
 
       let current = {
-        currentBooking:[],
+        confirmedBookings:[],
+        waitingBookings:[],
       };
-      Object.keys(currentBookings).map((key)=>{
-        current.currentBooking.push(currentBookings[key]);
+      Object.keys(confirmedBookings).map((key)=>{
+        current.confirmedBookings.push(confirmedBookings[key]);
+      })
+      Object.keys(waitingBookings).map((key)=>{
+        current.waitingBookings.push(waitingBookings[key]);
       })
       res.json(current);
+    
     });
 });
 
+
+router.post("/confirm",async (req,res)=>{
+  /*
+      This route will be used for updating status of a booking that is in waiting state.
+      Added By Sameed.
+  */
+  const shop_id=req.body.shop_id;
+  const customer_id=req.body.customer_id;
+  const bookingCreationTime=req.body.bookingCreationTime;
+  try{
+  bookingModel.find({shop_id,customer_id,bookingCreationTime,status:"waiting"}).then((bookings)=>{
+    for(let i=0;i<bookings.length;i++){
+        bookings[i].status="confirmed";
+        bookings[i].save();
+    }
+    res.redirect("/booking/current/shop/"+shop_id);
+  })
+}
+catch(err){
+  res.json(err);
+}
+//res.status(200).json('Updated Status Successfully');
+
+})
+
+router.post("/delivered",async (req,res)=>{
+  /*
+      This route will be used for updating status of a booking that is in waiting state.
+      Added By Sameed.
+  */
+  const shop_id=req.body.shop_id;
+  const customer_id=req.body.customer_id;
+  const bookingCreationTime=req.body.bookingCreationTime;
+  try{
+  bookingModel.find({shop_id,customer_id,bookingCreationTime,status:"confirmed"}).then((bookings)=>{
+    for(let i=0;i<bookings.length;i++){
+        bookings[i].status="done";
+        bookings[i].save();
+    }
+    res.redirect("/booking/current/shop/"+shop_id);
+  })
+}
+catch(err){
+  res.json(err);
+}
+//res.status(200).json('Updated Status Successfully');
+
+})
 
 router.post('/book', async (req, res) => {
   //console.log(req.params);
