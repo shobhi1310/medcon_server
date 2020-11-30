@@ -19,6 +19,8 @@ module.exports =  {
         return Math.floor((date-referenceDate)/2629746000);  // 2629746000 milliseconds = 1 month
     },
     getProfit:async (price,qty)=>{
+        console.log("peace: ",price);
+        console.log("qty: ",qty)
         return price*qty;
     },
     getCheck:async (idx,inHandStocks)=>{

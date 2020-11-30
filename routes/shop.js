@@ -365,7 +365,7 @@ router.get('/dashboard/:shopID', async (req,res)=>{
           profit[idx]-= await additionalFunc.getProfit(med.wholesale_price,obj.qty);
           inHandStock[idx] += obj.qty + await additionalFunc.getCheck(idx,inHandStock);
 
-          console.log("bought: ",inHandStock);
+          console.log("profit ",profit);
         }
 
         for(let j = 0;j<med.qty_sold_at.length;j++){
@@ -386,6 +386,7 @@ router.get('/dashboard/:shopID', async (req,res)=>{
           // inHandStock[idx] -= soldStock[idx];
           // inHandStock[idx]+= await additionalFunc.getCheck(idx,inHandStock);
           console.log("inHandStock: ",inHandStock);
+          console.log("Profit inside: ",profit);
           
         }
         for(let j=0;j<additionalFunc.min(soldStock.length,inHandStock.length);j++){
@@ -406,22 +407,22 @@ router.get('/dashboard/:shopID', async (req,res)=>{
 
 
 
-    bookingModel.find({shop_id,status:"waiting",expired:false}).then(async (bookings)=>{
+    bookingModel.find({shopID,status:"waiting",expired:false}).then(async (bookings)=>{
       progress['waitingOrders']+=bookings.length;
       
     })
 
 
-    bookingModel.find({shop_id,status:"confirmed",expired:false}).then(async (bookings)=>{
+    bookingModel.find({shopID,status:"confirmed",expired:false}).then(async (bookings)=>{
       progress['confirmedOrders']+=bookings.length;
     })
 
 
-    bookingModel.find({shop_id,status:"done"}).then(async (bookings)=>{
+    bookingModel.find({shopID,status:"done"}).then(async (bookings)=>{
       progress['deliveredOrders']+=bookings.length;
     })
 
-    bookingModel.find({shop_id,expired:true}).then(async (bookings)=>{
+    bookingModel.find({shopID,expired:true}).then(async (bookings)=>{
       progress['expiredOrders']+=bookings.length;
     })
     
