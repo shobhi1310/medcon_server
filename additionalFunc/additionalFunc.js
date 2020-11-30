@@ -50,6 +50,18 @@ module.exports =  {
         }
         // console.log("False")
         return false;
+    },
+    min:async (len1,len2)=>{
+        if(len1<=len2){
+            return len1;
+        }
+        return len2;
+    },
+    abs: async(val1){
+        if(val1<=0){
+            return -val1;
+        }
+        return val1;
     }
 
 

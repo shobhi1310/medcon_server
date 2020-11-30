@@ -324,7 +324,7 @@ router.get('/dashboard/:shopID', async (req,res)=>{
       let Shop = null;
       let profit = []; //here idx 0 means profit earned by shopOwner from {referenceDate} till just less than 1 month
       let inHandStock= [];//calculate inhandStock and deadStocks
-      let deadStock = [78,34,12,78,900,34]; //calculate deadstocks 
+      let deadStock = [78,34,12,78,900,34,78,345,190,245]; //calculate deadstocks 
       let soldStock= [];
       let safetyStock = []; //2-D array of dimension n*3
       let progress = {
@@ -382,11 +382,15 @@ router.get('/dashboard/:shopID', async (req,res)=>{
           }
 
           profit[idx]+= await additionalFunc.getProfit(med.wholesale_price,obj.qty);
-          soldStock[idx]+=obj.qty + await additionalFunc.getCheck(idx,soldStock);
-          inHandStock[idx] -= soldStock[idx];
-          inHandStock[idx]+= await additionalFunc.getCheck(idx,inHandStock);
+          soldStock[idx]+=obj.qty;
+          // inHandStock[idx] -= soldStock[idx];
+          // inHandStock[idx]+= await additionalFunc.getCheck(idx,inHandStock);
           console.log("inHandStock: ",inHandStock);
           
+        }
+        for(let j=0;j<additionalFunc.min(soldStock.length,inHandStock.length);j++){
+          inHandStock[j]-=soldStock[j];
+          inHandStock[j] = additionalFunc.abs(inHandStock[j]);
         }
         safetyStockInsideArray.push(await additionalFunc.getSafetyStockCheck(inHandStock.length-1,inHandStock));
         safetyStockInsideArray.push(await additionalFunc.getThreshHold(soldStock.length-1,soldStock));
@@ -397,52 +401,34 @@ router.get('/dashboard/:shopID', async (req,res)=>{
         
     }
 
-
-    //now find waiting,expired,confirmed and delivered bookings.
-    for(let k = 0;k<shop.booking_current.length;k++){
-        
-        let bookingID = shop.booking_current[k];
-        // console.log(bookingID);
-        let curr_booking = await bookingModel.findById(bookingID);
-
-        // console.log(curr_booking);
-        let getVal =await additionalFunc.isExpired(curr_booking.createdAt.getTime());
-        
-        if(getVal == false){
-          
-          if(curr_booking.status == "waiting"){
-            progress['waitingOrders']+=1;
-          }else if(curr_booking.status == "confirmed"){
-            progress['confirmedOrders']+=1;
-          }else if(curr_booking.status == "delivered"){
-            progress['deliveredOrders']+=1;
-          }else{
-            progress['expiredOrders']+=1;
-          }
-        }
-
-    }
+  
 
 
 
-    for(let k =0;k<shop.booking_history.length;k++){
-      let bookingID = shop.booking_history[k];
-      let hist_booking = await bookingModel.findById(bookingID);
 
-      let getVal =await additionalFunc.isExpired(hist_booking.createdAt.getTime());
-      // console.log("getVal is: ",getVal)
-      if(getVal == false){
-        if(hist_booking.status == "waiting"){
-          progress['waitingOrders']+=1;
-        }else if(hist_booking.status == "confirmed"){
-          progress['confirmedOrders']+=1;
-        }else if(hist_booking.status == "delivered"){
-          progress['deliveredOrders']+=1;
-        }else{
-          progress['expiredOrders']+=1;
-        }
-      }
-    }
+    bookingModel.find({shop_id,status:"waiting",expired:false}).then(async (bookings)=>{
+      progress['waitingOrders']+=bookings.length;
+      
+    })
+
+
+    bookingModel.find({shop_id,status:"confirmed",expired:false}).then(async (bookings)=>{
+      progress['confirmedOrders']+=bookings.length;
+    })
+
+
+    bookingModel.find({shop_id,status:"done"}).then(async (bookings)=>{
+      progress['deliveredOrders']+=bookings.length;
+    })
+
+    bookingModel.find({shop_id,expired:true}).then(async (bookings)=>{
+      progress['expiredOrders']+=bookings.length;
+    })
+    
+
+
+
+
 
 
     // console.log("bug found")
@@ -457,6 +443,78 @@ router.get('/dashboard/:shopID', async (req,res)=>{
 
 });
 
+
+router.route('/inventory/:id').post(async (req, res) => {
+  const shopID = req.params.id;
+  const med_name = req.body.med_name;
+  const qty = parseInt(req.body.qty);
+  const mfg_date = new Date(req.body.mfg_date);
+  const add_date = new Date(req.body.add_date);
+  const wholesale_price = parseFloat(req.body.wholesale_price);
+  let shopMedicine = [];
+  let response = {};
+  console.log(shopID, med_name);
+  try {
+    const medicine = await medicineModel.find({name: med_name});
+    // console.log(medicine, typeof(medicine));
+    shopModel
+      .findById(shopID, { medicines: 1 })
+      .then((shop) => {
+        shopMedicine = shop.get('medicines');
+        var found = false;
+        shopMedicine.map((med, index) => {
+          // console.log(med.medicine, typeof(med.medicine), medicine[0]._id, typeof(medicine[0]._id));
+          med1 = JSON.stringify(med.medicine);
+          med2 = JSON.stringify(medicine[0]._id);
+          
+          if (med1 == med2) {
+            found = true;
+            med.qty_bought_at.push({
+              timestamp: add_date,
+              qty: qty,
+              mfg_date: mfg_date
+            })
+            med.wholesale_price = wholesale_price;
+            if (med.available_qty) {
+              med.available_qty += qty;
+            } else {
+              med.available_qty = qty;
+            }
+            response.medicine = medicine[0];
+            response.available_qty = med.available_qty;
+            response.wholesale_price = wholesale_price;
+          }
+          // console.log(med);
+        })
+        // If not in the medicines array, ie, new medicine
+        if (found == false) {
+          shopMedicine.push({
+            medicine: mongoose.Types.ObjectId(medicine[0]._id),
+            status: true,
+            wholesale_price: wholesale_price,
+            qty_bought_at: [{
+              timestamp: add_date,
+              qty: qty,
+              mfg_date: mfg_date
+            }],
+            qty_sold_at: [],
+            available_qty: qty
+          })
+        }
+        shopModel.updateOne({ _id: shopID }, { $set: { medicines: shopMedicine } }, (err, resp) => {
+          if (err) {
+            throw(err);
+          }
+        })
+        res.json(response);
+      }).catch((err) => {
+        res.status(404).json(err);
+      })
+  } catch (err) {
+    console.log(err);
+    res.status(404).json(err);
+  }
+});
 
 module.exports = router;
 
