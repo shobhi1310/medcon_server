@@ -404,32 +404,36 @@ router.get('/dashboard/:shopID', async (req,res)=>{
 
   
 
+    console.log(shopID);
 
 
-
-    bookingModel.find({shopID,status:"waiting",expired:false}).then(async (bookings)=>{
+    await bookingModel.find({shop_id:shopID,status:"waiting",expired:false}).then(async (bookings)=>{
+      console.log(bookings.length);
       progress['waitingOrders']+=bookings.length;
       
     })
 
 
-    bookingModel.find({shopID,status:"confirmed",expired:false}).then(async (bookings)=>{
+    await bookingModel.find({shop_id:shopID,status:"confirmed",expired:false}).then(async (bookings)=>{
+      console.log(bookings.length);
       progress['confirmedOrders']+=bookings.length;
     })
 
 
-    bookingModel.find({shopID,status:"done"}).then(async (bookings)=>{
+    await bookingModel.find({shop_id:shopID,status:"done"}).then(async (bookings)=>{
+      console.log(bookings.length);
       progress['deliveredOrders']+=bookings.length;
     })
 
-    bookingModel.find({shopID,expired:true}).then(async (bookings)=>{
+    await bookingModel.find({shop_id:shopID,expired:true}).then(async (bookings)=>{
+      console.log(bookings.length);
       progress['expiredOrders']+=bookings.length;
     })
     
 
 
 
-
+    await console.log(progress)
 
 
     // console.log("bug found")
