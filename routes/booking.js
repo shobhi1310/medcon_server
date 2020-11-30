@@ -151,7 +151,7 @@ async function sendRejectMail(data) {
 router.get('/current/:id', (req, res) => {
   const id = req.params.id;
   bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false,status:{"$ne":"done"} })
     .populate('shop_id')
     .populate('medicine_id')
     .populate('customer_id')
@@ -260,7 +260,7 @@ router.get('/past/:id', async (req, res) => {
 router.get('/current/shop/:id', (req, res) => {
   const id = req.params.id;
   bookingModel
-    .find({ shop_id:id, expired: false })
+    .find({ shop_id:id, expired: false,status:{"$ne":"done"} })
     .populate('shop_id')
     .populate('medicine_id')
     .populate('customer_id')
