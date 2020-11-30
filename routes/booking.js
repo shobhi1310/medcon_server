@@ -445,6 +445,18 @@ router.post('/book_all',(req,res)=>{
         console.log(d._id);
         arr.push(d._id)
         await shopModel.findByIdAndUpdate(d.shop_id,{$push:{booking_current:d._id}})
+        let obj = {
+          qty: d.booking_amount,
+          timestamp: new Date()
+        }
+        console.log(obj);
+        await shopModel.update(
+          {_id:d.shop_id,"medicines.medicine":d.medicine_id},
+          {
+            $push:{"medicines.$.qty_sold_at":obj},
+            $inc: {"medicines.$.available_qty": -d.booking_amount}
+          }
+        )
       })
       console.log(arr);
       await customerModel.findByIdAndUpdate(customer_id,{$push:{booking_current:arr}})
