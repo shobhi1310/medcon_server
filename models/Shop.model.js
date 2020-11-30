@@ -26,6 +26,7 @@ const shopSchema = new Schema(
       {
         medicine: { type: Schema.Types.ObjectId, ref: 'medicines' },
         status: { type: Boolean },
+
         wholesale_price : {type: Number},
         qty_bought_at: [
           {

@@ -307,6 +307,106 @@ router.post('/book', async (req, res) => {
   }
 });
 
+
+
+//this route is only for testing purposes
+router.post('/bookCurrentForTesting/', async (req, res) => {
+  try {
+    let deadline = await moment().utcOffset('+05:30').add(req.body.time_range, 'm');
+
+    let bookingData = new bookingModel({
+      customer_id: req.body.customer_id,
+      shop_id: req.body.shop_id,
+      medicine_id: req.body.medicine_id,
+      booking_amount: req.body.booking_amount,
+      time_range: req.body.time_range,
+      deadline: deadline.format('HH:mm'),
+      expired: false,
+      status:req.body.status
+      // prescription_url
+    });
+    let shopID = req.body.shop_id;
+    console.log(bookingData);
+    //console.log(bookingData);
+    await bookingData.save().then(async ()=>{
+      await bookingModel
+      .find({ $and: [{ customer_id: req.body.customer_id }, { shop_id: req.body.shop_id },{medicine_id:req.body.medicine_id},{expired:false}]}).then(async (bookings)=>{
+        console.log("Bookings is: ",bookings);
+        res.status(200).json({"res":bookings[0]._id});
+        await shopModel.update(
+          { _id: shopID },
+          { $addToSet: { booking_current: bookings[0]._id } },
+          (err, num) => {
+            //console.log(err, num);
+          }
+        );
+      })
+    })
+
+
+    // console.log("bug found")
+    // let shop = await shopModel.findById(shopID);
+
+    // console.log("Shop is: ",shop)
+
+    
+
+    
+
+   
+  } catch (error) {
+    res.json({"error":error.message});
+  }
+});
+
+//this route is only for testing purposes
+router.post('/bookHistoryForTesting/', async (req, res) => {
+
+  try {
+    let deadline = moment().utcOffset('+05:30').add(req.body.time_range, 'm');
+
+    let bookingData = new bookingModel({
+      customer_id: req.body.customer_id,
+      shop_id: req.body.shop_id,
+      medicine_id: req.body.medicine_id,
+      booking_amount: req.body.booking_amount,
+      time_range: req.body.time_range,
+      deadline: deadline.format('HH:mm'),
+      expired: true,
+      status:req.body.status
+      // prescription_url
+    });
+
+    let shopID = req.body.shop_id;
+    //console.log(bookingData);
+    await bookingData.save();
+
+    let shop = await shopModel.findById(shopID);
+
+    await bookingData.save().then(async ()=>{
+      await bookingModel
+      .find({ $and: [{ customer_id: req.body.customer_id }, { shop_id: req.body.shop_id },{medicine_id:req.body.medicine_id},{expired:true}]}).then(async (bookings)=>{
+        console.log("Bookings is: ",bookings);
+        res.status(200).json({"res":bookings[0]._id});
+        await shopModel.update(
+          { _id: shopID },
+          { $addToSet: { booking_history: bookings[0]._id } },
+          (err, num) => {
+            //console.log(err, num);
+          }
+        );
+      })
+    })
+
+    res.status(200).json('Booking Successful');
+  } catch (error) {
+    res.json({"error":error.message});
+  }
+});
+
+
+
+  
 router.post('/book_all',(req,res)=>{
   let customer_id = req.body.customer_id;
   let collection = req.body.data;
