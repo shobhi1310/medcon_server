@@ -5,6 +5,7 @@ const shopModel = require('../models/Shop.model');
 const moment = require('moment');
 const upload = require('../db/upload');
 const nodemailer = require("nodemailer");
+const { Schema } = require('mongoose');
 
 const testAccount = {
 	user: "medconnect36@gmail.com",
@@ -437,8 +438,16 @@ router.post('/book_all',(req,res)=>{
     }
     arr.push(booking);
   }
-  bookingModel.insertMany(arr,(error,doc)=>{
+  bookingModel.insertMany(arr,async (error,doc)=>{
     if(!error){
+      let arr = [];
+      doc.map(async (d)=>{
+        console.log(d._id);
+        arr.push(d._id)
+        await shopModel.findByIdAndUpdate(d.shop_id,{$push:{booking_current:d._id}})
+      })
+      console.log(arr);
+      await customerModel.findByIdAndUpdate(customer_id,{$push:{booking_current:arr}})
       res.status(200).json("booking done");
     }else{
       console.log(error);

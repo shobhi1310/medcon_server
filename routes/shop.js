@@ -406,7 +406,7 @@ router.get('/dashboard/:shopID', async (req,res)=>{
         let curr_booking = await bookingModel.findById(bookingID);
 
         // console.log(curr_booking);
-        let getVal =await additionalFunc.isExpired(curr_booking.createdAt.getTime());
+        let getVal =await additionalFunc.isExpired(curr_booking.createdAt);
         
         if(getVal == false){
           
@@ -429,7 +429,7 @@ router.get('/dashboard/:shopID', async (req,res)=>{
       let bookingID = shop.booking_history[k];
       let hist_booking = await bookingModel.findById(bookingID);
 
-      let getVal =await additionalFunc.isExpired(hist_booking.createdAt.getTime());
+      let getVal =await additionalFunc.isExpired(hist_booking.createdAt);
       // console.log("getVal is: ",getVal)
       if(getVal == false){
         if(hist_booking.status == "waiting"){
