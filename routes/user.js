@@ -125,7 +125,6 @@ router.route('/profile/update/:id').post(async (req,res)=>{
             await customerModel.updateOne(Query,updateValue,(err,response)=>{
                 if(err){
                     throw err;
-                    // return;
                 }
             })
 
