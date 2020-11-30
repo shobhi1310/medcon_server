@@ -458,5 +458,77 @@ router.get('/dashboard/:shopID', async (req,res)=>{
 });
 
 
+router.route('/inventory/:id').post(async (req, res) => {
+  const shopID = req.params.id;
+  const med_name = req.body.med_name;
+  const qty = parseInt(req.body.qty);
+  const mfg_date = new Date(req.body.mfg_date);
+  const add_date = new Date(req.body.add_date);
+  const wholesale_price = parseFloat(req.body.wholesale_price);
+  let shopMedicine = [];
+  let response = {};
+  console.log(shopID, med_name);
+  try {
+    const medicine = await medicineModel.find({name: med_name});
+    // console.log(medicine, typeof(medicine));
+    shopModel
+      .findById(shopID, { medicines: 1 })
+      .then((shop) => {
+        shopMedicine = shop.get('medicines');
+        var found = false;
+        shopMedicine.map((med, index) => {
+          // console.log(med.medicine, typeof(med.medicine), medicine[0]._id, typeof(medicine[0]._id));
+          med1 = JSON.stringify(med.medicine);
+          med2 = JSON.stringify(medicine[0]._id);
+          
+          if (med1 == med2) {
+            found = true;
+            med.qty_bought_at.push({
+              timestamp: add_date,
+              qty: qty,
+              mfg_date: mfg_date
+            })
+            med.wholesale_price = wholesale_price;
+            if (med.available_qty) {
+              med.available_qty += qty;
+            } else {
+              med.available_qty = qty;
+            }
+            response.medicine = medicine[0];
+            response.available_qty = med.available_qty;
+            response.wholesale_price = wholesale_price;
+          }
+          // console.log(med);
+        })
+        // If not in the medicines array, ie, new medicine
+        if (found == false) {
+          shopMedicine.push({
+            medicine: mongoose.Types.ObjectId(medicine[0]._id),
+            status: true,
+            wholesale_price: wholesale_price,
+            qty_bought_at: [{
+              timestamp: add_date,
+              qty: qty,
+              mfg_date: mfg_date
+            }],
+            qty_sold_at: [],
+            available_qty: qty
+          })
+        }
+        shopModel.updateOne({ _id: shopID }, { $set: { medicines: shopMedicine } }, (err, resp) => {
+          if (err) {
+            throw(err);
+          }
+        })
+        res.json(response);
+      }).catch((err) => {
+        res.status(404).json(err);
+      })
+  } catch (err) {
+    console.log(err);
+    res.status(404).json(err);
+  }
+});
+
 module.exports = router;
 
