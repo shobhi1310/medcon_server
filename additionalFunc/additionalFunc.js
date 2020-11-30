@@ -57,7 +57,7 @@ module.exports =  {
         }
         return len2;
     },
-    abs: async(val1){
+    abs: async(val1)=>{
         if(val1<=0){
             return -val1;
         }
