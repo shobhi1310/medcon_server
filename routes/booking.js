@@ -357,6 +357,7 @@ catch(err){
 
 router.post("/delivered",async (req,res)=>{
 
+  
   /*
       This route will be used for updating status of a booking that is in waiting state.
       Added By Sameed.
