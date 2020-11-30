@@ -202,6 +202,7 @@ router.get('/past/:id', async (req, res) => {
     .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false, status:{"$ne":"done"}})
     .populate('shop_id')
     .populate('medicine_id')
+    .populate('customer_id')
     .then((bookings) => {
       // These Bookings were expired but their expired value were true
       const pastBookings = [];
@@ -228,6 +229,7 @@ router.get('/past/:id', async (req, res) => {
     .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false, status:"done"})
     .populate('shop_id')
     .populate('medicine_id')
+    .populate('customer_id')
     .then((bookings) => {
       // These Bookings were delivered
       const pastBookings = [];
