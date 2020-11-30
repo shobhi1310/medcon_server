@@ -432,10 +432,6 @@ router.get('/dashboard/:shopID', async (req,res)=>{
     
 
 
-
-    await console.log(progress)
-
-
     // console.log("bug found")
 
 
