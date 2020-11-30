@@ -5,6 +5,7 @@ const shopModel = require('../models/Shop.model');
 const moment = require('moment');
 const upload = require('../db/upload');
 const nodemailer = require("nodemailer");
+const { Schema } = require('mongoose');
 
 const testAccount = {
 	user: "medconnect36@gmail.com",
@@ -255,22 +256,38 @@ catch(err){
 })
 
 router.post("/delivered",async (req,res)=>{
+  console.log("error");
   /*
       This route will be used for updating status of a booking that is in waiting state.
       Added By Sameed.
   */
   const shop_id=req.body.shop_id;
   const customer_id=req.body.customer_id;
+  
   const bookingCreationTime=req.body.bookingCreationTime;
+
   try{
-  bookingModel.find({shop_id,customer_id,bookingCreationTime,status:"confirmed"}).then((bookings)=>{
+  bookingModel.find({shop_id,customer_id,bookingCreationTime,status:"confirmed"}).then(async (bookings)=>{
     for(let i=0;i<bookings.length;i++){
         bookings[i].status="done";
-        bookings[i].save();
+        await bookings[i].save();
+        let obj = {
+          qty: bookings[i].booking_amount,
+          timestamp: new Date()
+        }
+        await shopModel.update(
+          {_id:shop_id,"medicines.medicine":bookings[i].medicine_id},
+          {
+            $push:{"medicines.$.qty_sold_at":obj},
+            $inc: {"medicines.$.available_qty": -bookings[i].booking_amount}
+          }
+        )
     }
     res.redirect("/booking/current/shop/"+shop_id);
   })
 }
+
+
 catch(err){
   res.json(err);
 }
@@ -307,6 +324,106 @@ router.post('/book', async (req, res) => {
   }
 });
 
+
+
+//this route is only for testing purposes
+router.post('/bookCurrentForTesting/', async (req, res) => {
+  try {
+    let deadline = await moment().utcOffset('+05:30').add(req.body.time_range, 'm');
+
+    let bookingData = new bookingModel({
+      customer_id: req.body.customer_id,
+      shop_id: req.body.shop_id,
+      medicine_id: req.body.medicine_id,
+      booking_amount: req.body.booking_amount,
+      time_range: req.body.time_range,
+      deadline: deadline.format('HH:mm'),
+      expired: false,
+      status:req.body.status
+      // prescription_url
+    });
+    let shopID = req.body.shop_id;
+    console.log(bookingData);
+    //console.log(bookingData);
+    await bookingData.save().then(async ()=>{
+      await bookingModel
+      .find({ $and: [{ customer_id: req.body.customer_id }, { shop_id: req.body.shop_id },{medicine_id:req.body.medicine_id},{expired:false}]}).then(async (bookings)=>{
+        console.log("Bookings is: ",bookings);
+        res.status(200).json({"res":bookings[0]._id});
+        await shopModel.update(
+          { _id: shopID },
+          { $addToSet: { booking_current: bookings[0]._id } },
+          (err, num) => {
+            //console.log(err, num);
+          }
+        );
+      })
+    })
+
+
+    // console.log("bug found")
+    // let shop = await shopModel.findById(shopID);
+
+    // console.log("Shop is: ",shop)
+
+    
+
+    
+
+   
+  } catch (error) {
+    res.json({"error":error.message});
+  }
+});
+
+//this route is only for testing purposes
+router.post('/bookHistoryForTesting/', async (req, res) => {
+
+  try {
+    let deadline = moment().utcOffset('+05:30').add(req.body.time_range, 'm');
+
+    let bookingData = new bookingModel({
+      customer_id: req.body.customer_id,
+      shop_id: req.body.shop_id,
+      medicine_id: req.body.medicine_id,
+      booking_amount: req.body.booking_amount,
+      time_range: req.body.time_range,
+      deadline: deadline.format('HH:mm'),
+      expired: true,
+      status:req.body.status
+      // prescription_url
+    });
+
+    let shopID = req.body.shop_id;
+    //console.log(bookingData);
+    await bookingData.save();
+
+    let shop = await shopModel.findById(shopID);
+
+    await bookingData.save().then(async ()=>{
+      await bookingModel
+      .find({ $and: [{ customer_id: req.body.customer_id }, { shop_id: req.body.shop_id },{medicine_id:req.body.medicine_id},{expired:true}]}).then(async (bookings)=>{
+        console.log("Bookings is: ",bookings);
+        res.status(200).json({"res":bookings[0]._id});
+        await shopModel.update(
+          { _id: shopID },
+          { $addToSet: { booking_history: bookings[0]._id } },
+          (err, num) => {
+            //console.log(err, num);
+          }
+        );
+      })
+    })
+
+    res.status(200).json('Booking Successful');
+  } catch (error) {
+    res.json({"error":error.message});
+  }
+});
+
+
+
+  
 router.post('/book_all',(req,res)=>{
   let customer_id = req.body.customer_id;
   let collection = req.body.data;
@@ -337,8 +454,16 @@ router.post('/book_all',(req,res)=>{
     }
     arr.push(booking);
   }
-  bookingModel.insertMany(arr,(error,doc)=>{
+  bookingModel.insertMany(arr,async (error,doc)=>{
     if(!error){
+      let arr = [];
+      doc.map(async (d)=>{
+        console.log(d._id);
+        arr.push(d._id)
+        await shopModel.findByIdAndUpdate(d.shop_id,{$push:{booking_current:d._id}})
+      })
+      console.log(arr);
+      await customerModel.findByIdAndUpdate(customer_id,{$push:{booking_current:arr}})
       res.status(200).json("booking done");
     }else{
       console.log(error);
