@@ -151,7 +151,7 @@ async function sendRejectMail(data) {
 router.get('/current/:id', (req, res) => {
   const id = req.params.id;
   bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false,status:{"$ne":"done"} })
     .populate('shop_id')
     .populate('medicine_id')
     .populate('customer_id')
@@ -188,21 +188,23 @@ router.get('/past/:id', async (req, res) => {
   const id = req.params.id;
   let AllPastBookings = [];
   await bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: true,  status:{"$ne":"done"}})
     .populate('shop_id')
     .populate('medicine_id')
     .populate('customer_id')
     .then((bookings) => {
-      //console.log(bookings);
+      // These Bookings were expired or cancelled
       AllPastBookings = bookings;
     });
+    
 
   await bookingModel
-    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false })
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false, status:{"$ne":"done"}})
     .populate('shop_id')
     .populate('medicine_id')
+    .populate('customer_id')
     .then((bookings) => {
-      //console.log(bookings);
+      // These Bookings were expired but their expired value were true
       const pastBookings = [];
 
       for (let i = 0; i < bookings.length; i++) {
@@ -211,15 +213,45 @@ router.get('/past/:id', async (req, res) => {
         const timeDifference = (currentDate - bookingDate) / 60000;
 
         if (timeDifference > bookings[i].time_range) {
+
           bookings[i].expired = true;
           bookings[i].save();
 
           pastBookings.push(bookings[i]);
         }
+
         //console.log(bookingDate, currentDate, currentDate - bookingDate);
       }
       AllPastBookings = AllPastBookings.concat(pastBookings);
     });
+
+    await bookingModel
+    .find({ $or: [{ customer_id: id }, { shop_id: id }], expired: false, status:"done"})
+    .populate('shop_id')
+    .populate('medicine_id')
+    .populate('customer_id')
+    .then((bookings) => {
+      // These Bookings were delivered
+      const pastBookings = [];
+
+      for (let i = 0; i < bookings.length; i++) {
+        //console.log(bookings)
+
+          pastBookings.push(bookings[i]);
+        
+
+        //console.log(bookingDate, currentDate, currentDate - bookingDate);
+      }
+      AllPastBookings = AllPastBookings.concat(pastBookings);
+    });
+
+  AllPastBookings.sort((a,b)=>{
+    if(a.createdAt<b.createdAt){
+      return +1;
+    }else{
+      return -1;
+    }
+  })
   let past = {
     AllPastBookings,
   };
@@ -230,7 +262,7 @@ router.get('/past/:id', async (req, res) => {
 router.get('/current/shop/:id', (req, res) => {
   const id = req.params.id;
   bookingModel
-    .find({ shop_id:id, expired: false })
+    .find({ shop_id:id, expired: false,status:{"$ne":"done"} })
     .populate('shop_id')
     .populate('medicine_id')
     .populate('customer_id')
